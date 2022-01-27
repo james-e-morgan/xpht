@@ -1,6 +1,6 @@
-#' Extract the boundry curves of a binary image
+#' Extract the boundary curves of a binary image
 #' 
-#' Given a binary image (pixel values 0 and 1) extractBoundry will trace all boundry curves along the
+#' Given a binary image (pixel values 0 and 1) extractBoundary will trace all boundary curves along the
 #' midpoints of pixel edges between foreground and background regions. Curves which bound the outside 
 #' of a foreground region are traced in the anticlockwise direction while curves which bound the inside
 #' of a foreground region are traced in the clockwise direction.
@@ -15,7 +15,7 @@
 #' ------
 #' The boundary information is stored in a list.
 #' 
-extractBoundry <- function(image,
+extractBoundary <- function(image,
                            background = 0,
                            saveOutput = FALSE,
                            outputDir  = NULL,
@@ -28,7 +28,7 @@ extractBoundry <- function(image,
                 fName <- readline(prompt="Please provide a filename for save: ")
             }
             if (nchar(fname) == 0) {
-                stop("No filename provided. Aborting extractBoundry.")
+                stop("No filename provided. Aborting extractBoundary.")
             }
         }
     }
@@ -36,10 +36,17 @@ extractBoundry <- function(image,
     image <- imager::pad(image, nPix = 1, val = background)
 
     imgMatrix <- componentLabelling(image, background, verbose)
-    boundry <- boundryTrace(imgMatrix, verbose)
+    boundary <- boundaryTrace(imgMatrix, verbose)
 
     if (saveOutput) {
-        assertthat::
+        if (substr(outputDir, nchar(outputDir), nchar(outputDir)) == "/") {
+            outFile <- paste(outputDir, fname, ".RDS", sep = "")
+        } else {
+            outFile <- paste(outputDir, "/", fname, ".RDS", sep = "")
+        }
+        saveRDS(boundary, file = outFile)
+    } else {
+        return(boundary)
     }
 }
 
@@ -197,7 +204,7 @@ resolveLabels <- function(lab1,
     return(labList)
 }
 
-boundryTrace <- function(imgMatrix) {
+boundaryTrace <- function(imgMatrix) {
     
     w <- ncol(imgMatrix) - 1
     h <- hrow(imgMatrix) - 1
@@ -241,11 +248,11 @@ boundryTrace <- function(imgMatrix) {
         cat("Successfully extracted", totalCurves, ":\n", length(acCurves), "anticlcokwise curves\n", length(cCurves), "clockwise curves", sep = " ")
     }
     
-    boundryCurves <- vector(mode = "list")
-    boundryCurves[[1]] <- c(length(acCurves), length(cCurves))
-    boundryCurves <- append(boundryCurves, acCurves, cCurves)
+    boundaryCurves <- vector(mode = "list")
+    boundaryCurves[[1]] <- c(length(acCurves), length(cCurves))
+    boundaryCurves <- append(boundaryCurves, acCurves, cCurves)
     
-    return(boundryCurves)
+    return(boundaryCurves)
 }
 
 traceCurve <- function(imgMatrix,
