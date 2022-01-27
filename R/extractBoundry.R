@@ -66,9 +66,9 @@ extractBoundary <- function(image,
     }
 }
 
-componentLabelling(image,
-                   background,
-                   verbose) {
+componentLabelling <- function(image,
+                               background,
+                               verbose) {
 
     w <- imager::width(image)
     h <- imager::height(image)
