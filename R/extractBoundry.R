@@ -13,8 +13,19 @@
 #' 
 #' OUTPUT
 #' ------
-#' The boundary information is stored in a list.
+#' The boundary information is stored in the list boundary, structured as follows
+#'      - boundary[[1]] is a vector (m,n) containing the number of anticlockwise and clockwise curves.
+#'      - boundary[[2]] to boundary[[m+1]] contain the anticlockwise curves.
+#'      - boundary[[m+2]] to boundary[[n+1]] contain the clockwise curves.
+#' If set to save, the list is saved as an RDS file.
 #' 
+#' @param image A binary image read in from the imager package.
+#' @param background The value of the background, 0 for black and 1 for white. (Default: 0)
+#' @param saveOutput If TRUE, will save output to directory specified by outputDir. (Default: FALSE)
+#' @param outputDir The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)
+#' @param fName The name of the output file saved. If saveOutput is TRUE and no filename specified, prompts user for filename. (Default: NULL)
+#' @param verbose If TRUE, prints indictors of progress throughout. (Default: TRUE)
+#' @export
 extractBoundary <- function(image,
                            background = 0,
                            saveOutput = FALSE,
@@ -23,8 +34,9 @@ extractBoundary <- function(image,
                            verbose = TRUE) {
     
     if (saveOutput) {
-        if (assertthat::is.writeable(outputDir)) {
-            if (!assertthat::is.string(fName)) {
+        if (!dir.exists(outputDir)) {
+            outputDir <- getwd()
+            if (!is.character(fName)) {
                 fName <- readline(prompt="Please provide a filename for save: ")
             }
             if (nchar(fname) == 0) {
@@ -36,6 +48,10 @@ extractBoundary <- function(image,
     image <- imager::pad(image, nPix = 1, val = background)
 
     imgMatrix <- componentLabelling(image, background, verbose)
+    if (any(imgMatrix > 1) || any(imgMatrix < 0)) {
+        stop("Image not binary. Pixel values must be either 0 or 1.")
+    }
+    
     boundary <- boundaryTrace(imgMatrix, verbose)
 
     if (saveOutput) {
@@ -65,11 +81,13 @@ componentLabelling(image,
     
     currentFG <- 1
     currentBG <- -1
+    
+    foreground <- 1-background
 
     # image is scanned left-to-right, top-to-bottom
     for (i in 1:h) {
         for (j in 1:w) {
-            if (imgMatrix[i,j] == 1) {
+            if (imgMatrix[i,j] == foreground) {
                 # Hit a foreground pixel. Assess the mask (X's):
                 # X X X
                 # X * o
