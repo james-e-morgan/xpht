@@ -25,6 +25,7 @@
 #' @param outputDir The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)
 #' @param fName The name of the output file saved. If saveOutput is TRUE and no filename specified, prompts user for filename. (Default: NULL)
 #' @param verbose If TRUE, prints indictors of progress throughout. (Default: TRUE)
+#' @return A list containing the the points around each boundary curve of the image as matrices.
 #' @export
 extractBoundary <- function(image,
                            background = 0,
@@ -66,6 +67,74 @@ extractBoundary <- function(image,
     }
 }
 
+#' Extract the boundary curves of binary images in a given directory
+#' 
+#' Runs extractBoundary on all images of a specified type in a given directory.
+#' Images must be binary (pixel values 0 and 1). 
+#'
+#' Output is either returned as a list of lists or saved as individual RDS
+#' files in the specified output directory.
+#'
+#' For more information, run help(extractBoundary)
+#'
+#' @param inputDir The directory containing the images.
+#' @param imgType The image file type for input files, specified without a "." (Default: "png")
+#' @param background The value of the background, 0 for black and 1 for white. (Default: 0)
+#' @param saveOutput If TRUE, will save output to directory specified by outputDir. (Default: FALSE)
+#' @param outputDir The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)
+#' @param verbose If TRUE, prints indictors of progress throughout. (Default: TRUE)
+#' @return A list for each image containing the points of the boundary curves. Stored in individual files (if saveOutput = TRUE) or a list.
+#' @export
+multiExtractBoundary <- function(inputDir,
+                                 imgType = 'png',
+                                 background = 0,
+                                 saveOutput = FALSE,
+                                 outputDir = NULL,
+                                 verbose = TRUE) {
+                                     
+    fType <- paste("*.", imgType, sep = "")
+    files <- list.files(path = inputDir,
+                        pattern = fType,
+                        full.names = TRUE,
+                        recursive = FALSE)
+    
+    if (saveOutput) {
+        if (!dir.exists(outputDir)) {
+            outputDir <- getwd()
+        }
+    } else {
+        boundaries <- vector(mode = "list", length = length(files))
+    }
+    
+    for (i in seq_along(files)) {
+        if (verbose) {
+            cat("Commencing", files[[i]], sep = " ")
+        }
+        
+        image <- imager::load.image(files[[i]])
+        
+        if (saveOutput) {
+            fString <- strsplit(files[[i]], "/", fixed = TRUE)
+            fName <- fString[[1]][length(fString[[1]])]
+            extractBoundary(image = image,
+                            background = background,
+                            saveOutput = TRUE,
+                            outputDir = outputDir,
+                            fName = fName,
+                            verbose = verbose)
+        } else {
+            boundaries[[i]] <- extractBoundary(image = image,
+                                               background = background,
+                                               verbose = verbose)
+        }
+    }
+    
+    if(saveOutput) {
+        cat("All boundaries successfully saved in:\n", outputDir, sep="")
+    } else {
+        return(boundaries)   
+    }
+}
 componentLabelling <- function(image,
                                background,
                                verbose) {
