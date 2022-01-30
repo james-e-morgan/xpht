@@ -19,7 +19,7 @@
 #'      - boundary[[m+2]] to boundary[[n+1]] contain the clockwise curves.
 #' If set to save, the list is saved as an RDS file.
 #' 
-#' @param image A binary image read in from the imager package.
+#' @param img A binary image read in from the imager package.
 #' @param background The value of the background, 0 for black and 1 for white. (Default: 0)
 #' @param saveOutput If TRUE, will save output to directory specified by outputDir. (Default: FALSE)
 #' @param outputDir The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)
@@ -27,7 +27,7 @@
 #' @param verbose If TRUE, prints indictors of progress throughout. (Default: TRUE)
 #' @return A list containing the the points around each boundary curve of the image as matrices.
 #' @export
-extractBoundary <- function(image,
+extractBoundary <- function(img,
                            background = 0,
                            saveOutput = FALSE,
                            outputDir  = NULL,
@@ -44,18 +44,24 @@ extractBoundary <- function(image,
         outFile <- paste(outputDir, "/", fname, ".RDS", sep = "")
     }
     # Pad image
-    image <- imager::pad(image, nPix = 1, val = background)
+    img <- imager::pad(img, nPix = 1, axes = "x", pos = -1, val = background)
+    img <- imager::pad(img, nPix = 1, axes = "x", pos = 1, val = background)
+    img <- imager::pad(img, nPix = 1, axes = "y", pos = -1, val = background)
+    img <- imager::pad(img, nPix = 1, axes = "y", pos = 1, val = background)
 
-    imgMatrix <- componentLabelling(image, background, verbose)
-    if (any(imgMatrix > 1) || any(imgMatrix < 0)) {
-        stop("Image not binary. Pixel values must be either 0 or 1.")
-    }
+    imgMatrix <- componentLabelling(img, background, verbose)
     
     boundary <- boundaryTrace(imgMatrix, verbose)
 
     if (saveOutput) {
         saveRDS(boundary, file = outFile)
+        if (verbose) {
+            cat("Successfully saved ", outFile)
+        }
     } else {
+        if (verbose) {
+            print("Boundary extraction successful.")
+        }
         return(boundary)
     }
 }
@@ -104,19 +110,19 @@ multiExtractBoundary <- function(inputDir,
             cat("Commencing", files[[i]], sep = " ")
         }
         
-        image <- imager::load.image(files[[i]])
+        img <- imager::load.image(files[[i]])
         
         if (saveOutput) {
             fString <- strsplit(files[[i]], "/", fixed = TRUE)
             fName <- fString[[1]][length(fString[[1]])]
-            extractBoundary(image = image,
+            extractBoundary(img = img,
                             background = background,
                             saveOutput = TRUE,
                             outputDir = outputDir,
                             fName = fName,
                             verbose = verbose)
         } else {
-            boundaries[[i]] <- extractBoundary(image = image,
+            boundaries[[i]] <- extractBoundary(img = img,
                                                background = background,
                                                verbose = verbose)
         }
@@ -128,15 +134,19 @@ multiExtractBoundary <- function(inputDir,
         return(boundaries)   
     }
 }
-componentLabelling <- function(image,
+componentLabelling <- function(img,
                                background,
                                verbose) {
 
-    w <- imager::width(image)
-    h <- imager::height(image)
+    w <- imager::width(img)
+    h <- imager::height(img)
 
-    imgMatrix <- matrix(image, nrow = h, ncol = w, byrow = TRUE)
+    imgMatrix <- matrix(img, nrow = h, ncol = w, byrow = TRUE)
     imgMatrix <- apply(imgMatrix, 2, rev)
+    
+    if (any(imgMatrix > 1) || any(imgMatrix < 0)) {
+        stop("Image not binary. Pixel values must be either 0 or 1.")
+    }
     
     equivLabelsFG <- vector(mode = "list")
     equivLabelsBG <- vector(mode = "list")
@@ -157,7 +167,7 @@ componentLabelling <- function(image,
                 mask <- c(imgMatrix[i,j-1],
                           imgMatrix[i-1,j-1],
                           imgMatrix[i-1,j],
-                          imgMatrix[i,j+1])
+                          imgMatrix[i-1,j+1])
                 
                 if (mask[3] > 0) {
                     imgMatrix[i,j] <- mask[3]
@@ -279,15 +289,16 @@ resolveLabels <- function(lab1,
         labList[[lab2]] <- unique(c(labList[[lab1]], labList[[lab2]], -lab1))
     }  else {
         labList[[lab1]] <- unique(c(labList[[lab1]], labList[[lab2]], lab1, lab2))
-        lablist[[lab2]] <- unique(c(labList[[lab1]], labList[[lab2]], lab1, lab2))
+        labList[[lab2]] <- unique(c(labList[[lab1]], labList[[lab2]], lab1, lab2))
     }
     return(labList)
 }
 
-boundaryTrace <- function(imgMatrix) {
+boundaryTrace <- function(imgMatrix,
+                          verbose) {
     
     w <- ncol(imgMatrix) - 1
-    h <- hrow(imgMatrix) - 1
+    h <- nrow(imgMatrix) - 1
     
     startPx <- vector()
     regions <- vector()
@@ -296,17 +307,22 @@ boundaryTrace <- function(imgMatrix) {
     final <- FALSE
     
     cCurves <- vector(mode = "list") # clockwise curve, i.e. inner
-    acCurves <- vector(most = "list") # anticlockwise curve, i.e. outer.
+    acCurves <- vector(mode = "list") # anticlockwise curve, i.e. outer.
+    
+    acCount <- 1
+    cCount <- 1
     
     for (i in 2:h) {
-        for (i in 2:w) {
+        for (j in 2:w) {
             if (imgMatrix[i,j] != -1) {
                 if (!any(regions == imgMatrix[i,j])) {
                     lab <- imgMatrix[i,j]
                     if (lab > 0) {
-                        acCurves[[lab]] <- traceCurve(imgMatrix, i, j, lab)
+                        acCurves[[acCount]] <- traceCurve(imgMatrix, i, j, lab)
+                        acCount <- acCount + 1
                     } else {
-                        cCurves[[-lab]] <- traceCurve(imgMatrix, i, j, lab)
+                        cCurves[[cCount]] <- traceCurve(imgMatrix, i, j, lab)
+                        cCount <- cCount + 1
                     }
                     regions <- append(regions,
                                       imgMatrix[i,j])
@@ -325,12 +341,12 @@ boundaryTrace <- function(imgMatrix) {
     totalCurves <- length(cCurves) + length(acCurves)
     
     if (verbose) {
-        cat("Successfully extracted", totalCurves, ":\n", length(acCurves), "anticlcokwise curves\n", length(cCurves), "clockwise curves", sep = " ")
+        cat("Successfully extracted", totalCurves, "curves:\n", length(acCurves), "anticlockwise curves\n", length(cCurves), "clockwise curves\n", sep = " ")
     }
     
     boundaryCurves <- vector(mode = "list")
     boundaryCurves[[1]] <- c(length(acCurves), length(cCurves))
-    boundaryCurves <- append(boundaryCurves, acCurves, cCurves)
+    boundaryCurves <- do.call(c, list(boundaryCurves, acCurves, cCurves))
     
     return(boundaryCurves)
 }
@@ -441,7 +457,7 @@ traceCurve <- function(imgMatrix,
                 
                 curvePts <- unname(rbind(curvePts, prev))
                 pxLoc <- switch(pxLoc,
-                                swich(k+1,
+                                switch(k+1,
                                       3,
                                       3,
                                       NULL,
@@ -477,7 +493,7 @@ traceCurve <- function(imgMatrix,
                                        1,
                                        2,
                                        2))
-                dir <- k1
+                dir <- k
                 i <- x
                 j <- y
                 pc <- c(i,j)
@@ -494,6 +510,7 @@ traceCurve <- function(imgMatrix,
         }
     }
     
+    curvePts[,c(1,2)] <- curvePts[,c(2,1)]
     if (lab > 0) {
         curvePts[,1] <- rev(curvePts[,1])
         curvePts[,2] <- rev(curvePts[,2])

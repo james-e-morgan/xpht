@@ -5,7 +5,7 @@
 \title{Extract the boundary curves of a binary image}
 \usage{
 extractBoundary(
-  image,
+  img,
   background = 0,
   saveOutput = FALSE,
   outputDir = NULL,
@@ -14,7 +14,7 @@ extractBoundary(
 )
 }
 \arguments{
-\item{image}{A binary image read in from the imager package.}
+\item{img}{A binary image read in from the imager package.}
 
 \item{background}{The value of the background, 0 for black and 1 for white. (Default: 0)}
 
