@@ -367,7 +367,7 @@ computeExtendedDiagram <- function(zerothDiagram,
                                   diagram[["finite"]][j,])
                 } else {
                     Rel1 <- rbind(Rel1,
-                                  rev(diagram[["points"]][j,]))
+                                  rev(diagram[["finite"]][j,]))
                 }
             }
         }
@@ -381,17 +381,17 @@ computeExtendedDiagram <- function(zerothDiagram,
         }
     }
     
-    class(Ord0) <- "extDiagram"
-    class(Rel1) <- "extDiagram"
-    class(Ext0) <- "extDiagram"
-    class(Ext1) <- "extDiagram"
+    #class(Ord0) <- "extDiagram"
+    #class(Rel1) <- "extDiagram"
+    #class(Ext0) <- "extDiagram"
+    #class(Ext1) <- "extDiagram"
     
     exDiagram[["Ord0"]] <- Ord0
     exDiagram[["Rel1"]] <- Rel1
     exDiagram[["Ext0"]] <- Ext0
     exDiagram[["Ext1"]] <- Ext1
     
-    attributes(exDiagram)[["extended"]] <- TRUE        
+    #attributes(exDiagram)[["extended"]] <- TRUE        
     
     return(exDiagram)                        
 }
