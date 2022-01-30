@@ -37,13 +37,11 @@ extractBoundary <- function(image,
     if (saveOutput) {
         if (!dir.exists(outputDir)) {
             outputDir <- getwd()
-            if (!is.character(fName)) {
-                fName <- readline(prompt="Please provide a filename for save: ")
-            }
-            if (nchar(fname) == 0) {
-                stop("No filename provided. Aborting extractBoundary.")
-            }
         }
+        if (is.null(fName)) {
+            fName <- readline(prompt="Please provide a filename for save: ")
+        }
+        outFile <- paste(outputDir, "/", fname, ".RDS", sep = "")
     }
     # Pad image
     image <- imager::pad(image, nPix = 1, val = background)
@@ -56,11 +54,6 @@ extractBoundary <- function(image,
     boundary <- boundaryTrace(imgMatrix, verbose)
 
     if (saveOutput) {
-        if (substr(outputDir, nchar(outputDir), nchar(outputDir)) == "/") {
-            outFile <- paste(outputDir, fname, ".RDS", sep = "")
-        } else {
-            outFile <- paste(outputDir, "/", fname, ".RDS", sep = "")
-        }
         saveRDS(boundary, file = outFile)
     } else {
         return(boundary)

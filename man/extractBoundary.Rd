@@ -26,6 +26,9 @@ extractBoundary(
 
 \item{verbose}{If TRUE, prints indictors of progress throughout. (Default: TRUE)}
 }
+\value{
+A list containing the the points around each boundary curve of the image as matrices.
+}
 \description{
 Given a binary image (pixel values 0 and 1) extractBoundary will trace all boundary curves along the
 midpoints of pixel edges between foreground and background regions. Curves which bound the outside
