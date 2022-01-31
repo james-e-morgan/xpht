@@ -68,13 +68,13 @@ extractBoundary <- function(img,
 
 #' Extract the boundary curves of binary images in a given directory
 #' 
-#' Runs extractBoundary on all images of a specified type in a given directory.
+#' Runs \code{\link{extractBoundary}} on all images of a specified type in a given directory.
 #' Images must be binary (pixel values 0 and 1). 
 #'
 #' Output is either returned as a list of lists or saved as individual RDS
 #' files in the specified output directory.
 #'
-#' For more information, run help(extractBoundary)
+#' For more information, see \code{\link{extractBoundary}}.
 #'
 #' @param inputDir The directory containing the images.
 #' @param imgType The image file type for input files, specified without a "." (Default: "png")
