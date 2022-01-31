@@ -19,7 +19,6 @@ plot.extDiagram <- function(x, maxDirection,
         X = vector()
         
         imgName <- head(strsplit(x[[1]][[d]], "-")[[1]], -1)
-        print(imgName)
         pName <- imgName[1]
         if (length(imgName) > 1) {
             for (i in 2:length(imgName)) {
