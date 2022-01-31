@@ -114,7 +114,7 @@ multiExtractBoundary <- function(inputDir,
         
         if (saveOutput) {
             fString <- strsplit(files[[i]], "/", fixed = TRUE)
-            fName <- strsplit(fString[[1]][length(fString[[1]])], ".", fixed = TRUE)
+            fName <- strsplit(fString[[1]][length(fString[[1]])], ".", fixed = TRUE)[[1]][1]
             extractBoundary(img = img,
                             background = background,
                             saveOutput = TRUE,
