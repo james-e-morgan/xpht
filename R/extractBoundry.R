@@ -40,7 +40,7 @@ extractBoundary <- function(img,
         }
         if (is.null(fName)) {
             fName <- readline(prompt="Please provide a filename for save: ")
-        }
+        } 
         outFile <- paste(outputDir, "/", fName, ".RDS", sep = "")
     }
     # Pad image
@@ -56,7 +56,7 @@ extractBoundary <- function(img,
     if (saveOutput) {
         saveRDS(boundary, file = outFile)
         if (verbose) {
-            cat("Successfully saved ", outFile)
+            cat("Successfully saved ", outFile, "\n", sep = "")
         }
     } else {
         if (verbose) {
@@ -114,7 +114,7 @@ multiExtractBoundary <- function(inputDir,
         
         if (saveOutput) {
             fString <- strsplit(files[[i]], "/", fixed = TRUE)
-            fName <- fString[[1]][length(fString[[1]])]
+            fName <- strsplit(fString[[1]][length(fString[[1]])], ".", fixed = TRUE)
             extractBoundary(img = img,
                             background = background,
                             saveOutput = TRUE,
@@ -245,7 +245,7 @@ componentLabelling <- function(img,
     for (i in 1:(currentFG - 1)) {
         if (repTableFG[i] == i) {
             repTableFG[i] <- lab
-            j <- j + 1
+            lab <- lab + 1
         } else {
             repTableFG[i] <- repTableFG[repTableFG[i]]
         }

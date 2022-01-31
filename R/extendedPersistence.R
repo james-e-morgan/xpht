@@ -115,12 +115,12 @@ extendedPersistence <- function(bdryCurves,
     if (saveOutput) {
         saveRDS(xDiagram, file = outFile)
         if (verbose) {
-            cat("Successfully saved ", outFile)
+            cat("Successfully saved ", outFile, "\n", sep = "")
         }
     } else {
         if (verbose) {
             cat("Extended persistence diagrams successfully computed for",
-                nDirections, "directions.", sep = " ")
+                nDirections, "directions.\n", sep = " ")
         }
         return(xDiagram)
     }
