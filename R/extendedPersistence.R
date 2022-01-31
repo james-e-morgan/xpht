@@ -7,6 +7,16 @@ extendedPersistence <- function(bdryCurves,
                                 outputDir = NULL,
                                 fName = NULL,
                                 verbose = TRUE) {
+    if (saveOutput) {
+        if (!dir.exists(outputDir)) {
+            outputDir <- getwd()
+            print("Output directory doesn't exist. Saving to working directory.")
+        }
+        if (is.null(fName)) {
+            fName <- readLine(prompt="Please provide a filename for save: ")
+        }                          
+        outFile <- paste(outputDir, "/", fName, ".RDS", sep = "")
+        
     if (nDirections < 2 || nDirections %% 2 == 1) {
         stop("Number of directions must be non-zero and even")
     } else {
@@ -76,9 +86,59 @@ extendedPersistence <- function(bdryCurves,
         }
     }
     
-    return(xDiagram)
+    class(xDiagram) <- "extDiagram"
+    
+    if (saveOutput) {
+        saveRDS(xDiagram, file = outFile)
+        if (verbose) {
+            cat("Successfully saved ", outFile)
+        }
+    } else {
+        if (verbose) {
+            cat("Extended persistence diagrams successfully computed for",
+                nDirections, "directions.", sep = " ")
+        }
+        return(xDiagram)
+    }
 }
 
+multiExtendedPersistence <- function(inputDir,
+                                     outputDir,
+                                     nDirections,
+                                     tolerance = 1/sqrt(2),
+                                     verbose = TRUE) {
+    if (!dir.exists(outputDir)) {
+        outputDir <- getwd()
+        print("Output directory doesn't exist. Saving to working directory.")
+    }
+        
+    files <- list.files(path = inputDir,
+                        pattern = "*.RDS",
+                        full.names = TRUE,
+                        recursive = FALSE)
+    
+    for (i in seq_along(files)) {
+        f <- files[[i]]
+        if (verbose) {
+            cat("Commencing,", f, sep = " ")
+        }
+        
+        fName <- tail(strsplit(strsplit(f, ".", fixed = TRUE)[[1]][1],
+                               "/", fixed = TRUE)[[1]], n = 1)
+        
+        bdryCurves <- readRDS(f)
+        
+        extendedPersistence(bdryCurves = bdryCurves,
+                            imgName = fName,
+                            nDirections = nDirections,
+                            tolerance = tolerance,
+                            saveOutput = TRUE,
+                            outputDir = outputDir,
+                            fName = fName,
+                            verbose = verbose)
+    }
+}
+                                     
 parseSkeleton <- function(bdryCurves) {
     
     complex <- vector(mode = "list")
