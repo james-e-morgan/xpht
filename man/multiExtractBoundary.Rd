@@ -30,12 +30,12 @@ multiExtractBoundary(
 A list for each image containing the points of the boundary curves. Stored in individual files (if saveOutput = TRUE) or a list.
 }
 \description{
-Runs extractBoundary on all images of a specified type in a given directory.
+Runs \code{\link{extractBoundary}} on all images of a specified type in a given directory.
 Images must be binary (pixel values 0 and 1).
 }
 \details{
 Output is either returned as a list of lists or saved as individual RDS
 files in the specified output directory.
 
-For more information, run help(extractBoundary)
+For more information, see \code{\link{extractBoundary}}.
 }

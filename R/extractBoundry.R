@@ -41,7 +41,7 @@ extractBoundary <- function(img,
         if (is.null(fName)) {
             fName <- readline(prompt="Please provide a filename for save: ")
         }
-        outFile <- paste(outputDir, "/", fname, ".RDS", sep = "")
+        outFile <- paste(outputDir, "/", fName, ".RDS", sep = "")
     }
     # Pad image
     img <- imager::pad(img, nPix = 1, axes = "x", pos = -1, val = background)
@@ -107,7 +107,7 @@ multiExtractBoundary <- function(inputDir,
     
     for (i in seq_along(files)) {
         if (verbose) {
-            cat("Commencing", files[[i]], sep = " ")
+            cat("Commencing", files[[i]], "\n", sep = " ")
         }
         
         img <- imager::load.image(files[[i]])

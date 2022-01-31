@@ -40,7 +40,7 @@ extendedPersistence <- function(bdryCurves,
             fName <- readLine(prompt="Please provide a filename for save: ")
         }                          
         outFile <- paste(outputDir, "/", fName, ".RDS", sep = "")
-        
+    }
     if (nDirections < 2 || nDirections %% 2 == 1) {
         stop("Number of directions must be non-zero and even")
     } else {
@@ -126,14 +126,13 @@ extendedPersistence <- function(bdryCurves,
     }
 }
 
-#' Computed the Extended PHT for multiple images
+#' Compute the Extended PHT for multiple images
 #'
 #' Runs \code{\link{extractBoundary}} on all .RDS files in a given directory.
 #' 
 #' Each persistence diagram is \emph{saved} in in the specified output directory.
 #'
 #' For more information, see \code{\link{extractBoundary}}.
-}
 #'
 #' @param inputDir The directory containing the extracted boundary curves.
 #' @param outputDir The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)
@@ -160,7 +159,7 @@ multiExtendedPersistence <- function(inputDir,
     for (i in seq_along(files)) {
         f <- files[[i]]
         if (verbose) {
-            cat("Commencing,", f, sep = " ")
+            cat("Commencing,", f, "\n", sep = " ")
         }
         
         fName <- tail(strsplit(strsplit(f, ".", fixed = TRUE)[[1]][1],
