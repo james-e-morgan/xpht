@@ -1,3 +1,27 @@
+#' Compute the Extended PHT of a given image
+#'
+#' Given a disjoint collection of simple closed curves representing the boundaries of
+#' a two dimensional shape, compute the zeroth order extended persistent homology transform
+#' of the shape in a given number of directions.
+#' 
+#' Computing the extended persistent homology in a given direction requires information
+#' about the orientation of a curve. This information is used in detemining whether a vertex
+#' is a local minimum with respect to the foreground of the original image.
+#'
+#' @param bdryCurves A list containing points along the boundary curves of the image. The list
+#' must have length number_of_curves + 1 with the first entry a vector whose entries are the numbers
+#' of positively oriented curves and negatively oriented curves, respectively. All of the positively 
+#' oriented curves must be listed before the negatively oriented curves.
+#' @param imgName A string giving the name of the image.
+#' @param nDirections An integer giving the number of directions to use. This must be positive and even.
+#' @param tolerance Parameter to control the noise from the image. Any vertices closer than this in a particular
+#' direction will be classified as noise and ignored. (Default: 1/sqrt(2))
+#' @param saveOutput If TRUE, will save output to directory specified by outputDir. (Default: FALSE)
+#' @param outputDir The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)
+#' @param fName The name of the output file saved. If saveOutput is TRUE and no filename specified, prompts user for filename. (Default: NULL)
+#' @param verbose If TRUE, prints indictors of progress throughout. (Default: TRUE)
+#' @return A list of length 5 with names "Name", "Ord0", "Rel1", "Ext0", "Ext1". Each entry is a list
+#' containing the relevant part of the extended persistence diagram. The i-th entry corresponds to the i-th direction.
 #' @export
 extendedPersistence <- function(bdryCurves,
                                 imgName,
@@ -102,6 +126,22 @@ extendedPersistence <- function(bdryCurves,
     }
 }
 
+#' Computed the Extended PHT for multiple images
+#'
+#' Runs \code{\link{extractBoundary}} on all .RDS files in a given directory.
+#' 
+#' Each persistence diagram is \emph{saved} in in the specified output directory.
+#'
+#' For more information, see \code{\link{extractBoundary}}.
+}
+#'
+#' @param inputDir The directory containing the extracted boundary curves.
+#' @param outputDir The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)
+#' @param nDirections An integer giving the number of directions to use. This must be positive and even.
+#' @param tolerance Parameter to control the noise from the image. Any vertices closer than this in a particular
+#' direction will be classified as noise and ignored. (Default: 1/sqrt(2))
+#' @param verbose If TRUE, prints indictors of progress throughout. (Default: TRUE)
+#' @export
 multiExtendedPersistence <- function(inputDir,
                                      outputDir,
                                      nDirections,
