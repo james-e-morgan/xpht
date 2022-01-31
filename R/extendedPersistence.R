@@ -49,8 +49,9 @@ extendedPersistence <- function(bdryCurves,
         midPoint <- (nDirections/2) + 1
     }
     
-    xDiagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
-    xDiagram <- sapply(xDiagram.names, function(x) NULL)
+    #xDiagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
+    #xDiagram <- sapply(xDiagram.names, function(x) NULL)
+    xDiagram <- vector(mode = "list")
     
     oneSkeleton <- parseSkeleton(bdryCurves)
     
@@ -59,7 +60,7 @@ extendedPersistence <- function(bdryCurves,
     
     for (d in 1:(nDirections/2)) {
         diagramName <- paste(imgName, "-", toString(d), sep="")
-        xDiagram[["Name"]][[d]] <- diagramName
+        #xDiagram[["Name"]][[d]] <- diagramName
         
         dirVector <- directions[d,]
         
@@ -82,32 +83,45 @@ extendedPersistence <- function(bdryCurves,
             zerothDiagram[[i]] <- computeDiagram(filtration = heightFiltration,
                                                  tolerance = tolerance)
         }
-        extendedDiagram <- computeExtendedDiagram(zerothDiagram,
-                                                  nComponents)
+        extendedDiagram <- computeExtendedDiagram(zerothDiagram = zerothDiagram,
+                                                  nComponents = nComponents,
+                                                  diagramName = diagramName)
         
-        xDiagram[["Ord0"]][[d]] <- extendedDiagram[["Ord0"]]
-        xDiagram[["Rel1"]][[d]] <- extendedDiagram[["Rel1"]]
-        xDiagram[["Ext0"]][[d]] <- extendedDiagram[["Ext0"]]
-        xDiagram[["Ext1"]][[d]] <- extendedDiagram[["Ext1"]]
+        #xDiagram[["Ord0"]][[d]] <- extendedDiagram[["Ord0"]]
+        #xDiagram[["Rel1"]][[d]] <- extendedDiagram[["Rel1"]]
+        #xDiagram[["Ext0"]][[d]] <- extendedDiagram[["Ext0"]]
+        #xDiagram[["Ext1"]][[d]] <- extendedDiagram[["Ext1"]]
+        class(extendedDiagram) <- "extDiagram"
+        xDiagram[[d]] <- extendedDiagram
         
     }
     
     for (d in midPoint:nDirections) {
         diagramName <- paste(imgName, "-", toString(d), sep="")
-        xDiagram[["Name"]][[d]] <- diagramName
+        #xDiagram[["Name"]][[d]] <- diagramName
+        negDiagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
+        negDiagram <- sapply(negDiagram.names, function(x) NULL)
         
+        negDiagram[["Name"]] <- diagramName
         k <- d - midPoint + 1
         
-        xDiagram[["Ord0"]][[d]] <- -xDiagram[["Rel1"]][[k]]
-        xDiagram[["Rel1"]][[d]] <- -xDiagram[["Ord0"]][[k]]
+        #xDiagram[["Ord0"]][[d]] <- -xDiagram[["Rel1"]][[k]]
+        #xDiagram[["Rel1"]][[d]] <- -xDiagram[["Ord0"]][[k]]
+        negDiagram[["Ord0"]] <- -xDiagram[[k]][["Rel1"]]
+        negDiagram[["Rel1"]] <- -xDiagram[[k]][["Ord0"]]
+        negDiagram[["Ext0"]] <- -matrix(xDiagram[[k]][["Ext0"]][,c(2,1)], ncol = 2)
         
-        xDiagram[["Ext0"]][[d]] <- -matrix(xDiagram[["Ext0"]][[k]][,c(2,1)], ncol=2)
+        #xDiagram[["Ext0"]][[d]] <- -matrix(xDiagram[["Ext0"]][[k]][,c(2,1)], ncol=2)
         
-        if (length(xDiagram[["Ext1"]][[k]]) > 0) {
-            xDiagram[["Ext1"]][[d]] <- -matrix(xDiagram[["Ext1"]][[k]][,c(2,1)], ncol=2)
+        if (length(xDiagram[[k]][["Ext1"]]) > 0) {
+            #xDiagram[["Ext1"]][[d]] <- -matrix(xDiagram[["Ext1"]][[k]][,c(2,1)], ncol=2)
+            negDiagram[["Ext1"]] <- -matrix(xDiagram[[k]][["Ext1"]][,c(2,1)], ncol = 2)
         } else {
-            xDiagram[["Ext1"]][[d]] <- vector()
+            #xDiagram[["Ext1"]][[d]] <- vector()
+            negDiagram[["Ext1"]] <- vector()
         }
+        class(negDiagram) <- "extDiagram"
+        xDiagram[[d]] <- negDiagram
     }
     
     class(xDiagram) <- "extDiagram"
@@ -348,14 +362,14 @@ computeDiagram <- function(filtration,
     diagram <- sapply(diagram.names, function(x) NULL)
     
     parents <- vector(mode = "list",
-                      length = length(sortedHeights))
+                      length = length(filtration[["height"]]))
     
     diagram[["extended"]] <- c(head(sortedHeights,1),
                                tail(sortedHeights,1))
     
     for (hv in sortedHeights) {
         
-        hVertex <- which(filtration[["height"]] == hv) #all vertices at height h
+        hVertex <- which(filtration[["height"]] == hv) #all vertices at height hv
         
         for (v in hVertex) {
             
@@ -385,7 +399,7 @@ computeDiagram <- function(filtration,
                     for (x in components) {
                         hx <- filtration[["height"]][x]
                         if (hx > minBirthTime) {
-                            if (filtration[["height"]][x] < hv) {
+                            if (hx < hv) {
                                 # Component born at height of x dies at 
                                 # the current height.
                                 if (abs(hx - hv) > tolerance) {
@@ -445,8 +459,9 @@ findParent <- function(x,
 }
 
 computeExtendedDiagram <- function(zerothDiagram,
-                                   nComponents) {
-    exDiagram.names <- c("Ord0", "Rel1", "Ext0", "Ext1")
+                                   nComponents,
+                                   diagramName) {
+    exDiagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
     exDiagram <- sapply(exDiagram.names, function(x) NULL)
     
     Ord0 <- vector()
@@ -454,6 +469,7 @@ computeExtendedDiagram <- function(zerothDiagram,
     Ext0 <- vector()
     Ext1 <- vector()
     
+    exDiagram[["Name"]] <- diagramName
     for (i in 1:nComponents) {
         diagram <- zerothDiagram[[i]]
         
