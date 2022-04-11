@@ -321,15 +321,10 @@ testMinimality <- function(vertices,
     hPrev <- heights[1]
     hNext <- heights[3]
     
-    if (orientation == 0) {
-        if (hk > hPrev || hk > hNext) {
-            return(FALSE)
-        }
-    } else if (orientation == 1) {
-        if (hk < hPrev || hk < hNext) {
-            return(FALSE)
-        }
+    if (hk > hPrev || hk > hNext) {
+        return(FALSE)
     }
+    
     if (abs(hk - hPrev) <= colinearCond && abs(hk - hNext) <= colinearCond) {
         return(testNormalVector(vk, vNext, direction))
     } else {
