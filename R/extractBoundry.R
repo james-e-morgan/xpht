@@ -155,7 +155,6 @@ componentLabelling <- function(img,
     currentBG <- -1
     
     foreground <- 1-background
-
     # image is scanned left-to-right, top-to-bottom
     for (i in 1:h) {
         for (j in 1:w) {

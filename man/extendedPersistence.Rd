@@ -2,7 +2,7 @@
 % Please edit documentation in R/extendedPersistence.R
 \name{extendedPersistence}
 \alias{extendedPersistence}
-\title{Compute the Extended PHT of a given image}
+\title{Compute the Extended Persistence Diagrams of a given image}
 \usage{
 extendedPersistence(
   bdryCurves,

@@ -1,4 +1,4 @@
-#' Compute the Extended PHT of a given image
+#' Compute the Extended Persistence Diagrams of a given image
 #'
 #' Given a disjoint collection of simple closed curves representing the boundaries of
 #' a two dimensional shape, compute the zeroth order extended persistent homology transform
