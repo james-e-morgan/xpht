@@ -22,13 +22,15 @@ distanceMatrix <- function(diagrams,
                 d_ij <- alignedDistance(object1 = obj1,
                                         object2 = obj2,
                                         q = q,
-                                        K = nDirs) / nDirs
+                                        K = nDirs)
             } else {
                 d_ij <- unalignedDistance(object1 = obj1,
                                           object2 = obj2,
                                           q = q,
-                                          K = nDirs) / nDirs
+                                          K = nDirs)
             }
+            
+            d_ij <- (d_ij/nDirs)^(1/q)
             
             distMatrix[i,j] <- d_ij
             distMatrix[j,i] <- d_ij
@@ -45,7 +47,7 @@ unalignedDistance <- function(object1,
                               object2,
                               q,
                               K) {
-    ds <- c("Ord0", "Rel1", "Ext0", "Ext1")
+    ds <- c("Ext0", "Ext1", "Ord0", "Rel1")
     # Compute aligned distance to give a starting point
     minDist <- alignedDistance(object1 = object1,
                                object2 = object2,
@@ -62,6 +64,7 @@ unalignedDistance <- function(object1,
                             function(k) pointDistance(X = object1[[k]][[x]],
                                                       Y = object2[[((k+m)%%K)+1]][[x]],
                                                       q = q)))
+
             total <- total + d
             if (total >= minDist) {
                 break
@@ -86,6 +89,7 @@ alignedDistance <- function(object1,
                         function(k) pointDistance(X = object1[[k]][[x]],
                                                   Y = object2[[k]][[x]],
                                                   q = q)))
+        
         total <- total + d
     }
     
@@ -103,11 +107,13 @@ pointDistance <- function(X, Y, q) {
         # Only X has points
         d <- sum(sapply(1:nX,
                         function(i) diagonalDist(X[i,],q)))
+       
         return(d)
     } else if (nX == 0 && nY > 0) {
         # Only Y has points
         d <- sum(sapply(1:nY,
                         function(i) diagonalDist(Y[i,],q)))
+        
         return(d)
     } else {
         # Hungarian Algorithm
@@ -140,8 +146,7 @@ pointDistance <- function(X, Y, q) {
 }
 
 diagonalDist <- function(p, q) {
-    mp <- (p[1] + p[2])/2
-    d <- abs(p[1]-mp)^q + abs(p[2]-mp)^q
+    d <- 2 * ((abs(d-b)/2)^q)
     return(d)
 }
 

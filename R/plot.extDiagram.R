@@ -2,6 +2,7 @@
 plot.extDiagram <- function(x,
                             barcode = FALSE,
                             rotated = FALSE,
+                            histogram = FALSE,
                             col = NULL,
                             showLegend = FALSE,
                             legendPos = NULL,
