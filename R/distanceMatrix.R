@@ -146,7 +146,7 @@ pointDistance <- function(X, Y, q) {
 }
 
 diagonalDist <- function(p, q) {
-    d <- 2 * ((abs(d-b)/2)^q)
+    d <- 2 * ((abs(p[2]-p[1])/2)^q)
     return(d)
 }
 
