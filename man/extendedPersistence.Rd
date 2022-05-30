@@ -16,37 +16,47 @@ extendedPersistence(
 )
 }
 \arguments{
-\item{bdryCurves}{A list containing points along the boundary curves of the image. The list
-must have length number_of_curves + 1 with the first entry a vector whose entries are the numbers
-of positively oriented curves and negatively oriented curves, respectively. All of the positively
-oriented curves must be listed before the negatively oriented curves.}
+\item{bdryCurves}{A list containing points along the boundary curves of the
+image. The list must have length number_of_curves + 1 with the first entry a
+vector whose entries are the numbers of positively oriented curves and
+negatively oriented curves, respectively. All of the positively oriented
+curves must be listed before the negatively oriented curves.}
 
 \item{imgName}{A string giving the name of the image.}
 
-\item{nDirections}{An integer giving the number of directions to use. This must be positive and even.}
+\item{nDirections}{An integer giving the number of directions to use. This
+must be positive and even.}
 
-\item{tolerance}{Parameter to control the noise from the image. Any vertices closer than this in a particular
-direction will be classified as noise and ignored. (Default: 1/sqrt(2))}
+\item{tolerance}{Parameter to control the noise from the image. Any vertices
+closer than this in a particular direction will be classified as noise and
+ignored. (Default: 1/sqrt(2))}
 
-\item{saveOutput}{If TRUE, will save output to directory specified by outputDir. (Default: FALSE)}
+\item{saveOutput}{If TRUE, will save output to directory specified by
+outputDir. (Default: FALSE)}
 
-\item{outputDir}{The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)}
+\item{outputDir}{The directory to save the output. If saveOutput is TRUE and
+no directory is specified, saves to working directory. (Default: NULL)}
 
-\item{fName}{The name of the output file saved. If saveOutput is TRUE and no filename specified, prompts user for filename. (Default: NULL)}
+\item{fName}{The name of the output file saved. If saveOutput is TRUE and no
+filename specified, prompts user for filename. (Default: NULL)}
 
-\item{verbose}{If TRUE, prints indictors of progress throughout. (Default: TRUE)}
+\item{verbose}{If TRUE, prints indictors of progress throughout.
+(Default: TRUE)}
 }
 \value{
-A list of length 5 with names "Name", "Ord0", "Rel1", "Ext0", "Ext1". Each entry is a list
-containing the relevant part of the extended persistence diagram. The i-th entry corresponds to the i-th direction.
+A list of length 5 with names "Name", "Ord0", "Rel1", "Ext0",
+"Ext1". Each entry is a list
+containing the relevant part of the extended persistence diagram. The i-th
+entry corresponds to the i-th direction.
 }
 \description{
-Given a disjoint collection of simple closed curves representing the boundaries of
-a two dimensional shape, compute the zeroth order extended persistent homology transform
-of the shape in a given number of directions.
+Given a disjoint collection of simple closed curves representing the
+boundaries of a two dimensional shape, compute the zeroth order extended
+persistent homology transform of the shape in a given number of directions.
 }
 \details{
-Computing the extended persistent homology in a given direction requires information
-about the orientation of a curve. This information is used in detemining whether a vertex
-is a local minimum with respect to the foreground of the original image.
+Computing the extended persistent homology in a given direction requires
+information about the orientation of a curve. This information is used in
+determining whether a vertex is a local minimum with respect to the
+foreground of the original image.
 }
