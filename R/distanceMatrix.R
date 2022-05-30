@@ -1,8 +1,8 @@
 #' @export
 computeDistanceMatrix <- function(diagrams,
-                                    n_objects,
-                                    q = 1,
-                                    aligned = FALSE) {
+                                  n_objects,
+                                  q = 1,
+                                  aligned = FALSE) {
   n_dirs <- length(diagrams) / n_objects
 
   distance_matrix <- matrix(0, nrow = n_objects, ncol = n_objects)
@@ -33,7 +33,7 @@ computeDistanceMatrix <- function(diagrams,
         )
       }
 
-      d_ij <- (d_ij / n_dirs) ^ (1 / q)
+      d_ij <- (d_ij / n_dirs)^(1 / q)
 
       distance_matrix[i, j] <- d_ij
       distance_matrix[j, i] <- d_ij
@@ -49,7 +49,6 @@ computeDistanceMatrix <- function(diagrams,
 }
 
 computeUnalignedDistance <- function(object_1, object_2, q, n_dirs) {
-
   ds <- c("Ext0", "Ext1", "Ord0", "Rel1")
   # Aligned distance gives a starting point
   min_dist <- computeAlignedDistance(

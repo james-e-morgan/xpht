@@ -380,9 +380,11 @@ computeDiagram <- function(filtration, direction, tolerance) {
                   )
                   diagram[["finite_minimal"]] <- append(
                     diagram[["finite_minimal"]],
-                    testMinimality(vertices = vertices,
-                                   heights = heights,
-                                   direction = direction)
+                    testMinimality(
+                      vertices = vertices,
+                      heights = heights,
+                      direction = direction
+                    )
                   )
                 }
               }
@@ -412,9 +414,11 @@ computeDiagram <- function(filtration, direction, tolerance) {
                     )
                     diagram[["finite_minimal"]] <- append(
                       diagram[["finite_minimal"]],
-                      testMinimality(vertices = vertices,
-                                     heights = heights,
-                                     direction = direction)
+                      testMinimality(
+                        vertices = vertices,
+                        heights = heights,
+                        direction = direction
+                      )
                     )
                   }
                 }
@@ -438,7 +442,7 @@ computeDiagram <- function(filtration, direction, tolerance) {
   if (length(birth_point) > 1) {
     stop("Simple closed curve has more than one essential class.")
   }
-  
+
   # Check if vertex x is minimal
   x <- birth_point[1]
   idxs <- (c(x - 2, x - 1, x) %% n_vertices) + 1
@@ -452,7 +456,7 @@ computeDiagram <- function(filtration, direction, tolerance) {
     filtration[["height"]][idxs[2]],
     filtration[["height"]][idxs[3]]
   )
-  
+
   diagram[["extended_minimal"]] <- testMinimality(
     vertices = vertices,
     heights = heights,
@@ -541,8 +545,8 @@ testMinimality <- function(vertices,
     return(FALSE)
   }
 
-  if (abs(h_k - h_prev) <= colinear_cond && 
-      abs(h_k - h_next) <= colinear_cond) {
+  if (abs(h_k - h_prev) <= colinear_cond &&
+    abs(h_k - h_next) <= colinear_cond) {
     return(testNormalVector(v_k, v_next, direction))
   } else {
     P <- c(

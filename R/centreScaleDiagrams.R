@@ -18,8 +18,8 @@
 #' minimum birth times.
 #' @export
 centreScaleDiagrams <- function(diagrams,
-                                  scale = TRUE,
-                                  scale_constant = 1) {
+                                scale = TRUE,
+                                scale_constant = 1) {
   n_dirs <- length(diagrams)
   lambda <- findMinBirthTimes(
     n_dirs = n_dirs,
@@ -45,8 +45,7 @@ centreScaleDiagrams <- function(diagrams,
   return(adjusted_diagrams)
 }
 
-findMinBirthTimes <- function(n_dirs,
-                                 diagrams) {
+findMinBirthTimes <- function(n_dirs, diagrams) {
   lambda <- vector()
   # The first component born in any direction belongs to Ext0
   for (i in 1:n_dirs) {
@@ -56,9 +55,7 @@ findMinBirthTimes <- function(n_dirs,
   return(lambda)
 }
 
-centreDiagrams <- function(diagrams,
-                            n_dirs,
-                            lambda) {
+centreDiagrams <- function(diagrams, n_dirs, lambda) {
   cp <- findCentre(
     n_dirs = n_dirs,
     lambda = lambda
@@ -104,10 +101,7 @@ findCentre <- function(n_dirs, lambda) {
   return(cp)
 }
 
-scaleDiagrams <- function(diagrams,
-                           n_dirs,
-                           lambda,
-                           scale_constant) {
+scaleDiagrams <- function(diagrams, n_dirs, lambda, scale_constant) {
   scale_denom <- (-1) * sum(lambda)
 
   if (scale_denom <= 0) {
