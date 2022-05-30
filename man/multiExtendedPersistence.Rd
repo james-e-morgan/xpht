@@ -5,20 +5,20 @@
 \title{Compute the Extended PHT for multiple images}
 \usage{
 multiExtendedPersistence(
-  inputDir,
-  outputDir,
-  nDirections,
+  input_dir,
+  output_dir,
+  n_dirs,
   tolerance = 1/sqrt(2),
   verbose = TRUE
 )
 }
 \arguments{
-\item{inputDir}{The directory containing the extracted boundary curves.}
+\item{input_dir}{The directory containing the extracted boundary curves.}
 
-\item{outputDir}{The directory to save the output. If saveOutput is TRUE
+\item{output_dir}{The directory to save the output. If save_output is TRUE
 and no directory is specified, saves to working directory. (Default: NULL)}
 
-\item{nDirections}{An integer giving the number of directions to use. This
+\item{n_dirs}{An integer giving the number of directions to use. This
 must be positive and even.}
 
 \item{tolerance}{Parameter to control the noise from the image. Any vertices
