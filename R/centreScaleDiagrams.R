@@ -20,100 +20,116 @@
 centre_scale_diagrams <- function(diagrams,
                                   scale = TRUE,
                                   scale_constant = 1) {
-    n_dirs <- length(diagrams)
-    lambda <- minBirthTimes(n_dirs = n_dirs,
-                            diagrams = diagrams)
+  n_dirs <- length(diagrams)
+  lambda <- minBirthTimes(
+    n_dirs = n_dirs,
+    diagrams = diagrams
+  )
 
-    csDiagrams <- centreDiagrams(diagrams = diagrams,
-                                 n_dirs = n_dirs,
-                                 lambda = lambda)
-    print("Diagrams successfully centred.")
-    if (scale) {
-        csDiagrams <- scaleDiagrams(diagrams = diagrams,
-                                    n_dirs = n_dirs,
-                                    lambda = lambda,
-                                    scale_constant = scale_constant)
-        print("Diagrams successfully scaled.")
-    }
+  csDiagrams <- centreDiagrams(
+    diagrams = diagrams,
+    n_dirs = n_dirs,
+    lambda = lambda
+  )
+  print("Diagrams successfully centred.")
+  if (scale) {
+    csDiagrams <- scaleDiagrams(
+      diagrams = diagrams,
+      n_dirs = n_dirs,
+      lambda = lambda,
+      scale_constant = scale_constant
+    )
+    print("Diagrams successfully scaled.")
+  }
 
-    return(csDiagrams)
+  return(csDiagrams)
 }
 
 minBirthTimes <- function(n_dirs,
                           diagrams) {
-    lambda <- vector()
-    # The first component born in any direction belongs to Ext0.
-    for (i in 1:n_dirs) {
-        birthTimes <- c(diagrams[[i]][["Ext0"]][,1])
-        lambda <- append(lambda, min(birthTimes))
-    }
-    return(lambda)
+  lambda <- vector()
+  # The first component born in any direction belongs to Ext0.
+  for (i in 1:n_dirs) {
+    birthTimes <- c(diagrams[[i]][["Ext0"]][, 1])
+    lambda <- append(lambda, min(birthTimes))
+  }
+  return(lambda)
 }
 
 centreDiagrams <- function(diagrams,
                            n_dirs,
                            lambda) {
-    cp <- findCentre(n_dirs = n_dirs,
-                     lambda = lambda)
+  cp <- findCentre(
+    n_dirs = n_dirs,
+    lambda = lambda
+  )
 
-    directions <- t(sapply(1:n_dirs, function(r) c(cos(2 * pi * r / n_dirs),
-                                                  sin(2 * pi * r / n_dirs))))
+  directions <- t(sapply(1:n_dirs, function(r) {
+    c(
+      cos(2 * pi * r / n_dirs),
+      sin(2 * pi * r / n_dirs)
+    )
+  }))
 
-    for (i in 1:n_dirs) {
-        shift <- sum(cp, directions[i,])
+  for (i in 1:n_dirs) {
+    shift <- sum(cp, directions[i, ])
 
-        diagrams[[i]][["Ext0"]] <- diagrams[[i]][["Ext0"]] - shift
+    diagrams[[i]][["Ext0"]] <- diagrams[[i]][["Ext0"]] - shift
 
-        if (length(diagrams[[i]][["Ord0"]]) > 0) {
-            diagrams[[i]][["Ord0"]] <- diagrams[[i]][["Ord0"]] - shift
-        }
-
-        if (length(diagrams[[i]][["Rel1"]]) > 0) {
-            diagrams[[i]][["Rel1"]] <- diagrams[[i]][["Rel1"]] - shift
-        }
-
-        if (length(diagrams[[i]][["Ext1"]]) > 0) {
-            diagrams[[i]][["Ext1"]] <- diagrams[[i]][["Ext1"]] - shift
-        }
+    if (length(diagrams[[i]][["Ord0"]]) > 0) {
+      diagrams[[i]][["Ord0"]] <- diagrams[[i]][["Ord0"]] - shift
     }
-    return(diagrams)
+
+    if (length(diagrams[[i]][["Rel1"]]) > 0) {
+      diagrams[[i]][["Rel1"]] <- diagrams[[i]][["Rel1"]] - shift
+    }
+
+    if (length(diagrams[[i]][["Ext1"]]) > 0) {
+      diagrams[[i]][["Ext1"]] <- diagrams[[i]][["Ext1"]] - shift
+    }
+  }
+  return(diagrams)
 }
 
 findCentre <- function(n_dirs, lambda) {
-    directions <- t(sapply(1:n_dirs, function(r) c(cos(2 * pi * r / n_dirs),
-                                                  sin(2 * pi * r / n_dirs))))
-    M <- lambda * directions
-    cp <- colSums(M) / (n_dirs * 0.5)
+  directions <- t(sapply(1:n_dirs, function(r) {
+    c(
+      cos(2 * pi * r / n_dirs),
+      sin(2 * pi * r / n_dirs)
+    )
+  }))
+  M <- lambda * directions
+  cp <- colSums(M) / (n_dirs * 0.5)
 
-    return(cp)
+  return(cp)
 }
 
 scaleDiagrams <- function(diagrams,
                           n_dirs,
                           lambda,
                           scale_constant) {
-    L <- (-1)*sum(lambda)
+  L <- (-1) * sum(lambda)
 
-    if (L <= 0) {
-        stop("Incorrect lambda's computed. Cannot scale by a negative value.")
+  if (L <= 0) {
+    stop("Incorrect lambda's computed. Cannot scale by a negative value.")
+  }
+
+  scale_value <- scale_constant / L
+
+  for (i in 1:n_dirs) {
+    diagrams[[i]][["Ext0"]] <- diagrams[[i]][["Ext0"]] * scale_value
+
+    if (length(diagrams[[i]][["Ord0"]]) > 0) {
+      diagrams[[i]][["Ord0"]] <- diagrams[[i]][["Ord0"]] * scale_value
     }
 
-    scale_value <- scale_constant / L
-
-    for (i in 1:n_dirs) {
-        diagrams[[i]][["Ext0"]] <- diagrams[[i]][["Ext0"]] * scale_value
-
-        if (length(diagrams[[i]][["Ord0"]]) > 0) {
-            diagrams[[i]][["Ord0"]] <- diagrams[[i]][["Ord0"]] * scale_value
-        }
-
-        if (length(diagrams[[i]][["Rel1"]]) > 0) {
-            diagrams[[i]][["Rel1"]] <- diagrams[[i]][["Rel1"]] * scale_value
-        }
-
-        if (length(diagrams[[i]][["Ext1"]]) > 0) {
-            diagrams[[i]][["Ext1"]] <- diagrams[[i]][["Ext1"]] * scale_value
-        }
+    if (length(diagrams[[i]][["Rel1"]]) > 0) {
+      diagrams[[i]][["Rel1"]] <- diagrams[[i]][["Rel1"]] * scale_value
     }
-    return(diagrams)
+
+    if (length(diagrams[[i]][["Ext1"]]) > 0) {
+      diagrams[[i]][["Ext1"]] <- diagrams[[i]][["Ext1"]] * scale_value
+    }
+  }
+  return(diagrams)
 }

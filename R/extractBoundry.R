@@ -1,5 +1,5 @@
 #' Extract the boundary curves of a binary image
-#' 
+#'
 #' Given a binary image (pixel values 0 and 1) extractBoundary will trace all
 #' boundary curves along the midpoints of pixel edges between foreground and
 #' background regions. Curves which bound the outside of a foreground region
@@ -11,7 +11,7 @@
 #'      - Foreground pixels are labelled with positive integers (1,2,3,...).
 #'      - Background pixels are labelled with negative integers (-1,-2,...).
 #'      - The outermost background region is labelled with -1.
-#' 
+#'
 #' OUTPUT
 #' ------
 #' The boundary information is stored in the list boundary, structured as
@@ -37,42 +37,41 @@
 #' image as matrices.
 #' @export
 extractBoundary <- function(img,
-                           background = 0,
-                           saveOutput = FALSE,
-                           outputDir  = NULL,
-                           fName = NULL,
-                           verbose = TRUE) {
-    
-    if (saveOutput) {
-        if (!dir.exists(outputDir)) {
-            outputDir <- getwd()
-        }
-        if (is.null(fName)) {
-            fName <- readline(prompt="Please provide a filename for save: ")
-        } 
-        outFile <- paste(outputDir, "/", fName, ".RDS", sep = "")
+                            background = 0,
+                            saveOutput = FALSE,
+                            outputDir = NULL,
+                            fName = NULL,
+                            verbose = TRUE) {
+  if (saveOutput) {
+    if (!dir.exists(outputDir)) {
+      outputDir <- getwd()
     }
-    # Pad image
-    img <- imager::pad(img, nPix = 1, axes = "x", pos = -1, val = background)
-    img <- imager::pad(img, nPix = 1, axes = "x", pos = 1, val = background)
-    img <- imager::pad(img, nPix = 1, axes = "y", pos = -1, val = background)
-    img <- imager::pad(img, nPix = 1, axes = "y", pos = 1, val = background)
-
-    imgMatrix <- componentLabelling(img, background, verbose)
-    
-    boundary <- boundaryTrace(imgMatrix, verbose)
-
-    if (saveOutput) {
-        saveRDS(boundary, file = outFile)
-        if (verbose) {
-            cat("Successfully saved ", outFile, "\n", sep = "")
-        }
-    } else {
-        if (verbose) {
-            print("Boundary extraction successful.")
-        }
-        return(boundary)
+    if (is.null(fName)) {
+      fName <- readline(prompt = "Please provide a filename for save: ")
     }
+    outFile <- paste(outputDir, "/", fName, ".RDS", sep = "")
+  }
+  # Pad image
+  img <- imager::pad(img, nPix = 1, axes = "x", pos = -1, val = background)
+  img <- imager::pad(img, nPix = 1, axes = "x", pos = 1, val = background)
+  img <- imager::pad(img, nPix = 1, axes = "y", pos = -1, val = background)
+  img <- imager::pad(img, nPix = 1, axes = "y", pos = 1, val = background)
+
+  imgMatrix <- componentLabelling(img, background, verbose)
+
+  boundary <- boundaryTrace(imgMatrix, verbose)
+
+  if (saveOutput) {
+    saveRDS(boundary, file = outFile)
+    if (verbose) {
+      cat("Successfully saved ", outFile, "\n", sep = "")
+    }
+  } else {
+    if (verbose) {
+      print("Boundary extraction successful.")
+    }
+    return(boundary)
+  }
 }
 
 #' Extract the boundary curves of binary images in a given directory
@@ -100,456 +99,529 @@ extractBoundary <- function(img,
 #' Stored in individual files (if saveOutput = TRUE) or a list.
 #' @export
 multiExtractBoundary <- function(inputDir,
-                                 imgType = 'png',
+                                 imgType = "png",
                                  background = 0,
                                  saveOutput = FALSE,
                                  outputDir = NULL,
                                  verbose = TRUE) {
+  fType <- paste("*.", imgType, sep = "")
+  files <- list.files(
+    path = inputDir,
+    pattern = fType,
+    full.names = TRUE,
+    recursive = FALSE
+  )
 
-    fType <- paste("*.", imgType, sep = "")
-    files <- list.files(path = inputDir,
-                        pattern = fType,
-                        full.names = TRUE,
-                        recursive = FALSE)
+  if (saveOutput) {
+    if (!dir.exists(outputDir)) {
+      outputDir <- getwd()
+    }
+  } else {
+    boundaries <- vector(mode = "list", length = length(files))
+  }
+
+  for (i in seq_along(files)) {
+    if (verbose) {
+      cat("Commencing", files[[i]], "\n", sep = " ")
+    }
+
+    img <- imager::load.image(files[[i]])
 
     if (saveOutput) {
-        if (!dir.exists(outputDir)) {
-            outputDir <- getwd()
-        }
+      fString <- strsplit(files[[i]], "/", fixed = TRUE)
+      fName <- strsplit(fString[[1]][length(fString[[1]])], ".",
+        fixed = TRUE
+      )[[1]][1]
+      extractBoundary(
+        img = img,
+        background = background,
+        saveOutput = TRUE,
+        outputDir = outputDir,
+        fName = fName,
+        verbose = verbose
+      )
     } else {
-        boundaries <- vector(mode = "list", length = length(files))
+      boundaries[[i]] <- extractBoundary(
+        img = img,
+        background = background,
+        verbose = verbose
+      )
     }
+  }
 
-    for (i in seq_along(files)) {
-        if (verbose) {
-            cat("Commencing", files[[i]], "\n", sep = " ")
-        }
-
-        img <- imager::load.image(files[[i]])
-
-        if (saveOutput) {
-            fString <- strsplit(files[[i]], "/", fixed = TRUE)
-            fName <- strsplit(fString[[1]][length(fString[[1]])], ".", 
-                              fixed = TRUE)[[1]][1]
-            extractBoundary(img = img,
-                            background = background,
-                            saveOutput = TRUE,
-                            outputDir = outputDir,
-                            fName = fName,
-                            verbose = verbose)
-        } else {
-            boundaries[[i]] <- extractBoundary(img = img,
-                                               background = background,
-                                               verbose = verbose)
-        }
-    }
-
-    if(saveOutput) {
-        cat("All boundaries successfully saved in:\n", outputDir, sep="")
-    } else {
-        return(boundaries)
-    }
+  if (saveOutput) {
+    cat("All boundaries successfully saved in:\n", outputDir, sep = "")
+  } else {
+    return(boundaries)
+  }
 }
 
 componentLabelling <- function(img,
                                background,
                                verbose) {
+  w <- imager::width(img)
+  h <- imager::height(img)
 
-    w <- imager::width(img)
-    h <- imager::height(img)
+  imgMatrix <- matrix(img, nrow = h, ncol = w, byrow = TRUE)
+  imgMatrix <- apply(imgMatrix, 2, rev)
 
-    imgMatrix <- matrix(img, nrow = h, ncol = w, byrow = TRUE)
-    imgMatrix <- apply(imgMatrix, 2, rev)
+  if (any(imgMatrix > 1) || any(imgMatrix < 0)) {
+    stop("Image not binary. Pixel values must be either 0 or 1.")
+  }
 
-    if (any(imgMatrix > 1) || any(imgMatrix < 0)) {
-        stop("Image not binary. Pixel values must be either 0 or 1.")
-    }
+  equivLabelsFG <- vector(mode = "list")
+  equivLabelsBG <- vector(mode = "list")
 
-    equivLabelsFG <- vector(mode = "list")
-    equivLabelsBG <- vector(mode = "list")
+  currentFG <- 1
+  currentBG <- -1
 
-    currentFG <- 1
-    currentBG <- -1
+  foreground <- 1 - background
+  # image is scanned left-to-right, top-to-bottom
+  for (i in 1:h) {
+    for (j in 1:w) {
+      if (imgMatrix[i, j] == foreground) {
+        # Hit a foreground pixel. Assess the mask (X's):
+        # X X X
+        # X * o
+        # o o o
+        mask <- c(
+          imgMatrix[i, j - 1],
+          imgMatrix[i - 1, j - 1],
+          imgMatrix[i - 1, j],
+          imgMatrix[i - 1, j + 1]
+        )
 
-    foreground <- 1-background
-    # image is scanned left-to-right, top-to-bottom
-    for (i in 1:h) {
-        for (j in 1:w) {
-            if (imgMatrix[i,j] == foreground) {
-                # Hit a foreground pixel. Assess the mask (X's):
-                # X X X
-                # X * o
-                # o o o
-                mask <- c(imgMatrix[i,j-1],
-                          imgMatrix[i-1,j-1],
-                          imgMatrix[i-1,j],
-                          imgMatrix[i-1,j+1])
-
-                if (mask[3] > 0) {
-                    imgMatrix[i,j] <- mask[3]
-                } else if (mask[1] > 0) {
-                    imgMatrix[i,j] <- mask[1]
-                    if (mask[4] > 0) {
-                        equivLabelsFG <- resolveLabels(mask[4],
-                                                       mask[1],
-                                                       equivLabelsFG,
-                                                       bg = FALSE)
-                    }
-                } else if (mask[2] > 0) {
-                    imgMatrix[i,j] <- mask[2]
-                    if (mask[4] > 0) {
-                        equivLabelsFG <- resolveLabels(mask[2],
-                                                       mask[4],
-                                                       equivLabelsFG,
-                                                       bg = FALSE)
-                    }
-                } else if (mask[4] > 0) {
-                    imgMatrix[i,j] <- mask[4]
-                } else {
-                    imgMatrix[i,j] <- currentFG
-                    equivLabelsFG[[currentFG]] <- currentFG
-                    currentFG <- currentFG + 1
-                }
-            } else {
-                # Found a background pixel
-                mask <- c(0,0)
-                if (i > 1) {
-                    mask[2] <- imgMatrix[i-1,j]
-                }
-                if (j > 1) {
-                    mask[1] <- imgMatrix[i,j-1]
-                }
-
-                if (mask[2] < 0) {
-                    imgMatrix[i,j] <- mask[2]
-                    if (mask[1] < 0) {
-                        equivLabelsBG <- resolveLabels(-mask[1],
-                                                       -mask[2],
-                                                       equivLabelsBG,
-                                                       bg = TRUE)
-                    }
-                } else if (mask[1] < 0) {
-                    imgMatrix[i,j] <- mask[1]
-                } else {
-                    imgMatrix[i,j] <- currentBG
-                    x <- -currentBG
-                    equivLabelsBG[[x]] <- currentBG
-                    currentBG <- currentBG - 1
-                }
-            }
+        if (mask[3] > 0) {
+          imgMatrix[i, j] <- mask[3]
+        } else if (mask[1] > 0) {
+          imgMatrix[i, j] <- mask[1]
+          if (mask[4] > 0) {
+            equivLabelsFG <- resolveLabels(mask[4],
+              mask[1],
+              equivLabelsFG,
+              bg = FALSE
+            )
+          }
+        } else if (mask[2] > 0) {
+          imgMatrix[i, j] <- mask[2]
+          if (mask[4] > 0) {
+            equivLabelsFG <- resolveLabels(mask[2],
+              mask[4],
+              equivLabelsFG,
+              bg = FALSE
+            )
+          }
+        } else if (mask[4] > 0) {
+          imgMatrix[i, j] <- mask[4]
+        } else {
+          imgMatrix[i, j] <- currentFG
+          equivLabelsFG[[currentFG]] <- currentFG
+          currentFG <- currentFG + 1
         }
+      } else {
+        # Found a background pixel
+        mask <- c(0, 0)
+        if (i > 1) {
+          mask[2] <- imgMatrix[i - 1, j]
+        }
+        if (j > 1) {
+          mask[1] <- imgMatrix[i, j - 1]
+        }
+
+        if (mask[2] < 0) {
+          imgMatrix[i, j] <- mask[2]
+          if (mask[1] < 0) {
+            equivLabelsBG <- resolveLabels(-mask[1],
+              -mask[2],
+              equivLabelsBG,
+              bg = TRUE
+            )
+          }
+        } else if (mask[1] < 0) {
+          imgMatrix[i, j] <- mask[1]
+        } else {
+          imgMatrix[i, j] <- currentBG
+          x <- -currentBG
+          equivLabelsBG[[x]] <- currentBG
+          currentBG <- currentBG - 1
+        }
+      }
     }
-    if (verbose) {
-        print("Completed first raster for component labelling.
+  }
+  if (verbose) {
+    print("Completed first raster for component labelling.
               Now constructing representative tables.")
-    }
+  }
 
-    for (i in 1:length(equivLabelsFG)) {
-        for (lab in equivLabelsFG[[i]]) {
-            equivLabelsFG[[lab]] <- unique(c(equivLabelsFG[[lab]],
-                                             equivLabelsFG[[i]]))
-        }
+  for (i in 1:length(equivLabelsFG)) {
+    for (lab in equivLabelsFG[[i]]) {
+      equivLabelsFG[[lab]] <- unique(c(
+        equivLabelsFG[[lab]],
+        equivLabelsFG[[i]]
+      ))
     }
+  }
 
-    for (i in 1:length(equivLabelsBG)) {
-        for (lab in equivLabelsBG[[i]]) {
-            x <- -lab
-            equivLabelsBG[[x]] <- unique(c(equivLabelsBG[[x]],
-                                           equivLabelsBG[[i]]))
-        }
+  for (i in 1:length(equivLabelsBG)) {
+    for (lab in equivLabelsBG[[i]]) {
+      x <- -lab
+      equivLabelsBG[[x]] <- unique(c(
+        equivLabelsBG[[x]],
+        equivLabelsBG[[i]]
+      ))
     }
+  }
 
-    repTableFG <- vector()
-    repTableBG <- vector()
+  repTableFG <- vector()
+  repTableBG <- vector()
 
-    for (i in 1:length(equivLabelsFG)) {
-        repTableFG <- append(repTableFG, min(equivLabelsFG[[i]]))
+  for (i in 1:length(equivLabelsFG)) {
+    repTableFG <- append(repTableFG, min(equivLabelsFG[[i]]))
+  }
+  for (i in 1:length(equivLabelsBG)) {
+    repTableBG <- append(repTableBG, max(equivLabelsBG[[i]]))
+  }
+
+  lab <- 1
+  for (i in 1:(currentFG - 1)) {
+    if (repTableFG[i] == i) {
+      repTableFG[i] <- lab
+      lab <- lab + 1
+    } else {
+      repTableFG[i] <- repTableFG[repTableFG[i]]
     }
-    for (i in 1:length(equivLabelsBG)) {
-        repTableBG <- append(repTableBG, max(equivLabelsBG[[i]]))
-    }
+  }
 
-    lab <- 1
-    for (i in 1:(currentFG - 1)) {
-        if (repTableFG[i] == i) {
-            repTableFG[i] <- lab
-            lab <- lab + 1
-        } else {
-            repTableFG[i] <- repTableFG[repTableFG[i]]
-        }
+  lab <- -1
+  for (i in 1:(abs(currentBG) - 1)) {
+    if (repTableBG[i] == -i) {
+      repTablBG <- lab
+      lab <- lab - 1
+    } else {
+      x <- -repTableBG[i]
+      repTableBG[i] <- repTableBG[x]
     }
+  }
 
-    lab <- -1
-    for (i in 1:(abs(currentBG)-1)) {
-        if (repTableBG[i] == -i) {
-            repTablBG <- lab
-            lab <- lab - 1
-        } else {
-            x <- -repTableBG[i]
-            repTableBG[i] <- repTableBG[x]
-        }
+  if (verbose) {
+    print("Representative tables constructed. Now relabelling components.")
+  }
+
+  for (i in 1:h) {
+    for (j in 1:w) {
+      if (imgMatrix[i, j] > 0) {
+        imgMatrix[i, j] <- repTableFG[imgMatrix[i, j]]
+      } else {
+        x <- -imgMatrix[i, j]
+        imgMatrix[i, j] <- repTableBG[x]
+      }
     }
+  }
 
-    if (verbose) {
-        print("Representative tables constructed. Now relabelling components.")
-    }
-
-    for (i in 1:h) {
-        for (j in 1:w) {
-            if (imgMatrix[i,j] > 0) {
-                imgMatrix[i,j] <- repTableFG[imgMatrix[i,j]]
-            } else  {
-                x <- -imgMatrix[i,j]
-                imgMatrix[i,j] <- repTableBG[x]
-            }
-        }
-    }
-
-    return(imgMatrix)
+  return(imgMatrix)
 }
-        
+
 resolveLabels <- function(lab1,
                           lab2,
                           labList,
                           bg) {
-    if (bg) {
-        labList[[lab1]] <- unique(c(labList[[lab1]], labList[[lab2]], -lab2))
-        labList[[lab2]] <- unique(c(labList[[lab1]], labList[[lab2]], -lab1))
-    }  else {
-        labList[[lab1]] <- unique(c(labList[[lab1]],
-                                    labList[[lab2]],
-                                    lab1,
-                                    lab2))
-        labList[[lab2]] <- unique(c(labList[[lab1]],
-                                    labList[[lab2]],
-                                    lab1,
-                                    lab2))
-    }
-    return(labList)
+  if (bg) {
+    labList[[lab1]] <- unique(c(labList[[lab1]], labList[[lab2]], -lab2))
+    labList[[lab2]] <- unique(c(labList[[lab1]], labList[[lab2]], -lab1))
+  } else {
+    labList[[lab1]] <- unique(c(
+      labList[[lab1]],
+      labList[[lab2]],
+      lab1,
+      lab2
+    ))
+    labList[[lab2]] <- unique(c(
+      labList[[lab1]],
+      labList[[lab2]],
+      lab1,
+      lab2
+    ))
+  }
+  return(labList)
 }
 
 boundaryTrace <- function(imgMatrix,
                           verbose) {
+  w <- ncol(imgMatrix) - 1
+  h <- nrow(imgMatrix) - 1
 
-    w <- ncol(imgMatrix) - 1
-    h <- nrow(imgMatrix) - 1
+  startPx <- vector()
+  regions <- vector()
 
-    startPx <- vector()
-    regions <- vector()
+  maxRegionLabels <- c(min(imgMatrix), max(imgMatrix))
+  final <- FALSE
 
-    maxRegionLabels <- c(min(imgMatrix), max(imgMatrix))
-    final <- FALSE
+  cCurves <- vector(mode = "list") # clockwise curve, i.e. inner
+  acCurves <- vector(mode = "list") # anticlockwise curve, i.e. outer.
 
-    cCurves <- vector(mode = "list") # clockwise curve, i.e. inner
-    acCurves <- vector(mode = "list") # anticlockwise curve, i.e. outer.
+  acCount <- 1
 
-    acCount <- 1
-
-    for (i in 2:h) {
-        for (j in 2:w) {
-            if (imgMatrix[i,j] != -1) {
-                if (!any(regions == imgMatrix[i,j])) {
-                    lab <- imgMatrix[i,j]
-                    if (lab > 0) {
-                        acCurves[[acCount]] <- traceCurve(imgMatrix, i, j, lab)
-                        acCount <- acCount + 1
-                    } else {
-                        cCurves[[cCount]] <- traceCurve(imgMatrix, i, j, lab)
-                        cCount <- cCount + 1
-                    }
-                    regions <- append(regions,
-                                      imgMatrix[i,j])
-                }
-                if (any(regions == maxRegionLabels[1]) &&
-                    any(regions == maxRegionLabels[2])) {
-                    final <- TRUE
-                    break
-                }
-            }
+  for (i in 2:h) {
+    for (j in 2:w) {
+      if (imgMatrix[i, j] != -1) {
+        if (!any(regions == imgMatrix[i, j])) {
+          lab <- imgMatrix[i, j]
+          if (lab > 0) {
+            acCurves[[acCount]] <- traceCurve(imgMatrix, i, j, lab)
+            acCount <- acCount + 1
+          } else {
+            cCurves[[cCount]] <- traceCurve(imgMatrix, i, j, lab)
+            cCount <- cCount + 1
+          }
+          regions <- append(
+            regions,
+            imgMatrix[i, j]
+          )
         }
-        if (final) {
-            break
+        if (any(regions == maxRegionLabels[1]) &&
+          any(regions == maxRegionLabels[2])) {
+          final <- TRUE
+          break
         }
+      }
     }
-
-    totalCurves <- length(cCurves) + length(acCurves)
-
-    if (verbose) {
-        cat("Successfully extracted", totalCurves, "curves:\n",
-            length(acCurves),
-            "anticlockwise curves\n",
-            length(cCurves),
-            "clockwise curves\n",
-            sep = " ")
+    if (final) {
+      break
     }
-    boundaryCurves <- vector(mode = "list")
-    boundaryCurves[[1]] <- c(length(acCurves), length(cCurves))
-    boundaryCurves <- do.call(c, list(boundaryCurves, acCurves, cCurves))
+  }
 
-    return(boundaryCurves)
+  totalCurves <- length(cCurves) + length(acCurves)
+
+  if (verbose) {
+    cat("Successfully extracted", totalCurves, "curves:\n",
+      length(acCurves),
+      "anticlockwise curves\n",
+      length(cCurves),
+      "clockwise curves\n",
+      sep = " "
+    )
+  }
+  boundaryCurves <- vector(mode = "list")
+  boundaryCurves[[1]] <- c(length(acCurves), length(cCurves))
+  boundaryCurves <- do.call(c, list(boundaryCurves, acCurves, cCurves))
+
+  return(boundaryCurves)
 }
 
 traceCurve <- function(imgMatrix, i, j, lab) {
-    p0 <- c(i-0.5, j) # start with North egde
-    
-    p1 <- c(i,j)
-    pc <- c(0,0)
-    pxLoc <- 1 # N = 1, W = 2, S = 3, E = 4
+  p0 <- c(i - 0.5, j) # start with North edge
 
-    curvePts <- matrix(data = p0, nrow = 1, ncol = 2)
+  p1 <- c(i, j)
+  pc <- c(0, 0)
+  pxLoc <- 1 # N = 1, W = 2, S = 3, E = 4
 
-    dir <- 7
-    prevDir <- 0
+  curvePts <- matrix(data = p0, nrow = 1, ncol = 2)
 
-    while (any(pc != p1)) {
-        nbhd <- matrix(c(i, i-1, i-1, i-1, i, i+1, i+1, i+1,
-                         j+1, j+1, j, j-1, j-1, j-1, j, j+1),
-                       nrow = 8,
-                       ncol = 2)
+  dir <- 7
+  prevDir <- 0
 
-        if (dir %% 2 == 1) {
-            dir <- dir - 1
-        }
+  while (any(pc != p1)) {
+    nbhd <- matrix(c(
+      i, i - 1, i - 1, i - 1, i, i + 1, i + 1, i + 1,
+      j + 1, j + 1, j, j - 1, j - 1, j - 1, j, j + 1
+    ),
+    nrow = 8,
+    ncol = 2
+    )
 
-        for (k in ((dir+7):(dir+14) %% 8)) {
-            nbr <- FALSE
-            x <- nbhd[k+1,][1]
-            y <- nbhd[k+1,][2]
-
-            if (imgMatrix[x,y] == lab && any(c(x,y) != pc)) {
-                nbr <- TRUE
-                prev <- switch(pxLoc,
-                               switch(k+1,
-                                      rbind(c(i,j-0.5),
-                                            c(i+0.5,j),
-                                            c(x+0.5,y)),
-                                      rbind(c(i,j-0.5),
-                                            c(i+0.5,j),
-                                            c(i,j+0.5),
-                                            c(x+0.5,y)),
-                                      c(),
-                                      c(x,y+0.5),
-                                      c(x-0.5,y),
-                                      rbind(c(i,j-0.5),
-                                            c(x-0.5,y)),
-                                      rbind(c(i,j-0.5),
-                                            c(x,y-0.5)),
-                                      rbind(c(i,j-0.5),
-                                            c(i+0.5,j),
-                                            c(x,y-0.5))),
-                               switch(k+1,
-                                      rbind(c(i+0.5,j),
-                                            c(x+0.5,y)),
-                                      rbind(c(i+0.5,j),
-                                            c(i,j+0.5),
-                                            c(x+0.5,y)),
-                                      c(x+0.5,y),
-                                      rbind(c(i+0.5,j),
-                                            c(i,j+0.5),
-                                            c(i-0.5,j),
-                                            c(x,y+0.5)),
-                                      c(),
-                                      c(x-0.5,y),
-                                      c(x,y-0.5),
-                                      rbind(c(i+0.5,j),
-                                            c(x,y-0.5))),
-                               switch(k+1,
-                                      c(x+0.5,y),
-                                      rbind(c(i,j+0.5),
-                                            c(x+0.5,y)),
-                                      rbind(c(i,j+0.5),
-                                            c(x,y+0.5)),
-                                      rbind(c(i,j+0.5),
-                                            c(i-0.5,j),
-                                            c(x,y+0.5)),
-                                      rbind(c(i,j+0.5),
-                                            c(i-0.5,j),
-                                            c(x-0.5,y)),
-                                      rbind(c(i,j+0.5),
-                                            c(i-0.5,j),
-                                            c(i,j-0.5),
-                                            c(x-0.5,y)),
-                                      c(),
-                                      c(x,y-0.5)),
-                               switch(k+1,
-                                      c(),
-                                      c(x+0.5,y),
-                                      c(x,y+0.5),
-                                      rbind(c(i-0.5,j),
-                                            c(x,y+0.5)),
-                                      rbind(c(i-0.5,j),
-                                            c(x-0.5,y)),
-                                      rbind(c(i-0.5,j),
-                                            c(i,j-0.5),
-                                            c(x-0.5,y)),
-                                      rbind(c(i-0.5,j),
-                                            c(i,j-0.5),
-                                            c(x,y-0.5)),
-                                      rbind(c(i-0.5,j),
-                                            c(i,j-0.5),
-                                            c(i+0.5,j),
-                                            c(x,y-0.5))))
-
-                curvePts <- unname(rbind(curvePts, prev))
-                pxLoc <- switch(pxLoc,
-                                switch(k+1,
-                                      3,
-                                      3,
-                                      NULL,
-                                      4,
-                                      1,
-                                      1,
-                                      2,
-                                      2),
-                                switch(k+1,
-                                       3,
-                                       3,
-                                       4,
-                                       4,
-                                       NULL,
-                                       1,
-                                       2,
-                                       2),
-                                switch(k+1,
-                                       3,
-                                       3,
-                                       4,
-                                       4,
-                                       1,
-                                       1,
-                                       NULL,
-                                       2),
-                                switch(k+1,
-                                       NULL,
-                                       3,
-                                       4,
-                                       4,
-                                       1,
-                                       1,
-                                       2,
-                                       2))
-                dir <- k
-                i <- x
-                j <- y
-                pc <- c(i,j)
-                break
-            }
-        }
-        if (!nbr) {
-            # The region is a single pixel
-            curvePts <- rbind(curvePts,
-                              c(i,j-0.5),
-                              c(i+0.5,j),
-                              c(i,j+0.5))
-            pc <- p1
-        }
+    if (dir %% 2 == 1) {
+      dir <- dir - 1
     }
 
-    curvePts[,c(1,2)] <- curvePts[,c(2,1)]
-    if (lab > 0) {
-        curvePts[,1] <- rev(curvePts[,1])
-        curvePts[,2] <- rev(curvePts[,2])
-    }
+    for (k in ((dir + 7):(dir + 14) %% 8)) {
+      nbr <- FALSE
+      x <- nbhd[k + 1, ][1]
+      y <- nbhd[k + 1, ][2]
 
-    return(curvePts)
+      if (imgMatrix[x, y] == lab && any(c(x, y) != pc)) {
+        nbr <- TRUE
+        prev <- switch(pxLoc,
+          switch(k + 1,
+            rbind(
+              c(i, j - 0.5),
+              c(i + 0.5, j),
+              c(x + 0.5, y)
+            ),
+            rbind(
+              c(i, j - 0.5),
+              c(i + 0.5, j),
+              c(i, j + 0.5),
+              c(x + 0.5, y)
+            ),
+            c(),
+            c(x, y + 0.5),
+            c(x - 0.5, y),
+            rbind(
+              c(i, j - 0.5),
+              c(x - 0.5, y)
+            ),
+            rbind(
+              c(i, j - 0.5),
+              c(x, y - 0.5)
+            ),
+            rbind(
+              c(i, j - 0.5),
+              c(i + 0.5, j),
+              c(x, y - 0.5)
+            )
+          ),
+          switch(k + 1,
+            rbind(
+              c(i + 0.5, j),
+              c(x + 0.5, y)
+            ),
+            rbind(
+              c(i + 0.5, j),
+              c(i, j + 0.5),
+              c(x + 0.5, y)
+            ),
+            c(x + 0.5, y),
+            rbind(
+              c(i + 0.5, j),
+              c(i, j + 0.5),
+              c(i - 0.5, j),
+              c(x, y + 0.5)
+            ),
+            c(),
+            c(x - 0.5, y),
+            c(x, y - 0.5),
+            rbind(
+              c(i + 0.5, j),
+              c(x, y - 0.5)
+            )
+          ),
+          switch(k + 1,
+            c(x + 0.5, y),
+            rbind(
+              c(i, j + 0.5),
+              c(x + 0.5, y)
+            ),
+            rbind(
+              c(i, j + 0.5),
+              c(x, y + 0.5)
+            ),
+            rbind(
+              c(i, j + 0.5),
+              c(i - 0.5, j),
+              c(x, y + 0.5)
+            ),
+            rbind(
+              c(i, j + 0.5),
+              c(i - 0.5, j),
+              c(x - 0.5, y)
+            ),
+            rbind(
+              c(i, j + 0.5),
+              c(i - 0.5, j),
+              c(i, j - 0.5),
+              c(x - 0.5, y)
+            ),
+            c(),
+            c(x, y - 0.5)
+          ),
+          switch(k + 1,
+            c(),
+            c(x + 0.5, y),
+            c(x, y + 0.5),
+            rbind(
+              c(i - 0.5, j),
+              c(x, y + 0.5)
+            ),
+            rbind(
+              c(i - 0.5, j),
+              c(x - 0.5, y)
+            ),
+            rbind(
+              c(i - 0.5, j),
+              c(i, j - 0.5),
+              c(x - 0.5, y)
+            ),
+            rbind(
+              c(i - 0.5, j),
+              c(i, j - 0.5),
+              c(x, y - 0.5)
+            ),
+            rbind(
+              c(i - 0.5, j),
+              c(i, j - 0.5),
+              c(i + 0.5, j),
+              c(x, y - 0.5)
+            )
+          )
+        )
+
+        curvePts <- unname(rbind(curvePts, prev))
+        pxLoc <- switch(pxLoc,
+          switch(k + 1,
+            3,
+            3,
+            NULL,
+            4,
+            1,
+            1,
+            2,
+            2
+          ),
+          switch(k + 1,
+            3,
+            3,
+            4,
+            4,
+            NULL,
+            1,
+            2,
+            2
+          ),
+          switch(k + 1,
+            3,
+            3,
+            4,
+            4,
+            1,
+            1,
+            NULL,
+            2
+          ),
+          switch(k + 1,
+            NULL,
+            3,
+            4,
+            4,
+            1,
+            1,
+            2,
+            2
+          )
+        )
+        dir <- k
+        i <- x
+        j <- y
+        pc <- c(i, j)
+        break
+      }
+    }
+    if (!nbr) {
+      # The region is a single pixel
+      curvePts <- rbind(
+        curvePts,
+        c(i, j - 0.5),
+        c(i + 0.5, j),
+        c(i, j + 0.5)
+      )
+      pc <- p1
+    }
+  }
+
+  curvePts[, c(1, 2)] <- curvePts[, c(2, 1)]
+  if (lab > 0) {
+    curvePts[, 1] <- rev(curvePts[, 1])
+    curvePts[, 2] <- rev(curvePts[, 2])
+  }
+
+  return(curvePts)
 }
