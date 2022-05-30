@@ -17,24 +17,24 @@
 #' at the origin and scaled by an amount proportional to the sum of the
 #' minimum birth times.
 #' @export
-centre_scale_diagrams <- function(diagrams,
+centreScaleDiagrams <- function(diagrams,
                                   scale = TRUE,
                                   scale_constant = 1) {
   n_dirs <- length(diagrams)
-  lambda <- minBirthTimes(
+  lambda <- findMinBirthTimes(
     n_dirs = n_dirs,
     diagrams = diagrams
   )
 
-  csDiagrams <- centreDiagrams(
+  adjusted_diagrams <- centreDiagrams(
     diagrams = diagrams,
     n_dirs = n_dirs,
     lambda = lambda
   )
   print("Diagrams successfully centred.")
   if (scale) {
-    csDiagrams <- scaleDiagrams(
-      diagrams = diagrams,
+    adjusted_diagrams <- scaleDiagrams(
+      diagrams = adjusted_diagrams,
       n_dirs = n_dirs,
       lambda = lambda,
       scale_constant = scale_constant
@@ -42,23 +42,23 @@ centre_scale_diagrams <- function(diagrams,
     print("Diagrams successfully scaled.")
   }
 
-  return(csDiagrams)
+  return(adjusted_diagrams)
 }
 
-minBirthTimes <- function(n_dirs,
-                          diagrams) {
+findMinBirthTimes <- function(n_dirs,
+                                 diagrams) {
   lambda <- vector()
-  # The first component born in any direction belongs to Ext0.
+  # The first component born in any direction belongs to Ext0
   for (i in 1:n_dirs) {
-    birthTimes <- c(diagrams[[i]][["Ext0"]][, 1])
-    lambda <- append(lambda, min(birthTimes))
+    birth_times <- c(diagrams[[i]][["Ext0"]][, 1])
+    lambda <- append(lambda, min(birth_times))
   }
   return(lambda)
 }
 
 centreDiagrams <- function(diagrams,
-                           n_dirs,
-                           lambda) {
+                            n_dirs,
+                            lambda) {
   cp <- findCentre(
     n_dirs = n_dirs,
     lambda = lambda
@@ -98,23 +98,23 @@ findCentre <- function(n_dirs, lambda) {
       sin(2 * pi * r / n_dirs)
     )
   }))
-  M <- lambda * directions
-  cp <- colSums(M) / (n_dirs * 0.5)
+  directions <- lambda * directions
+  cp <- colSums(directions) / (n_dirs * 0.5)
 
   return(cp)
 }
 
 scaleDiagrams <- function(diagrams,
-                          n_dirs,
-                          lambda,
-                          scale_constant) {
-  L <- (-1) * sum(lambda)
+                           n_dirs,
+                           lambda,
+                           scale_constant) {
+  scale_denom <- (-1) * sum(lambda)
 
-  if (L <= 0) {
+  if (scale_denom <= 0) {
     stop("Incorrect lambda's computed. Cannot scale by a negative value.")
   }
 
-  scale_value <- scale_constant / L
+  scale_value <- scale_constant / scale_denom
 
   for (i in 1:n_dirs) {
     diagrams[[i]][["Ext0"]] <- diagrams[[i]][["Ext0"]] * scale_value

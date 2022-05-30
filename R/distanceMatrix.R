@@ -1,43 +1,42 @@
 #' @export
-distanceMatrix <- function(diagrams,
-                           nObjects,
-                           q = 1,
-                           aligned = FALSE) {
-  # The extended diagram for an object in n directions
-  nDirs <- length(diagrams) / nObjects
+computeDistanceMatrix <- function(diagrams,
+                                    n_objects,
+                                    q = 1,
+                                    aligned = FALSE) {
+  n_dirs <- length(diagrams) / n_objects
 
-  distMatrix <- matrix(0, nrow = nObjects, ncol = nObjects)
+  distance_matrix <- matrix(0, nrow = n_objects, ncol = n_objects)
 
   # Distance matrix is symmetric, so only compute upper triangular part.
   # Diagonal entries are zero.
-  for (i in 1:(nObjects - 1)) {
-    idx1 <- ((i - 1) * nDirs + 1):(i * nDirs)
-    for (j in (i + 1):(nObjects)) {
-      idx2 <- ((j - 1) * nDirs + 1):(j * nDirs)
+  for (i in 1:(n_objects - 1)) {
+    idx_1 <- ((i - 1) * n_dirs + 1):(i * n_dirs)
+    for (j in (i + 1):(n_objects)) {
+      idx_2 <- ((j - 1) * n_dirs + 1):(j * n_dirs)
 
-      obj1 <- lapply(idx1, function(k) diagrams[[k]])
-      obj2 <- lapply(idx2, function(k) diagrams[[k]])
+      object_1 <- lapply(idx_1, function(k) diagrams[[k]])
+      object_2 <- lapply(idx_2, function(k) diagrams[[k]])
 
       if (aligned) {
-        d_ij <- alignedDistance(
-          object1 = obj1,
-          object2 = obj2,
+        d_ij <- computeAlignedDistance(
+          object_1 = object_1,
+          object_2 = object_2,
           q = q,
-          K = nDirs
+          n_dirs = n_dirs
         )
       } else {
-        d_ij <- unalignedDistance(
-          object1 = obj1,
-          object2 = obj2,
+        d_ij <- computeUnalignedDistance(
+          object_1 = object_1,
+          object_2 = object_2,
           q = q,
-          K = nDirs
+          n_dirs = n_dirs
         )
       }
 
-      d_ij <- (d_ij / nDirs)^(1 / q)
+      d_ij <- (d_ij / n_dirs) ^ (1 / q)
 
-      distMatrix[i, j] <- d_ij
-      distMatrix[j, i] <- d_ij
+      distance_matrix[i, j] <- d_ij
+      distance_matrix[j, i] <- d_ij
 
       print(paste("Computed distance (", i, ",", j, ") and (",
         j, ",", i, ")",
@@ -46,65 +45,60 @@ distanceMatrix <- function(diagrams,
     }
   }
 
-  return(distMatrix)
+  return(distance_matrix)
 }
 
-unalignedDistance <- function(object1,
-                              object2,
-                              q,
-                              K) {
+computeUnalignedDistance <- function(object_1, object_2, q, n_dirs) {
+
   ds <- c("Ext0", "Ext1", "Ord0", "Rel1")
-  # Compute aligned distance to give a starting point
-  minDist <- alignedDistance(
-    object1 = object1,
-    object2 = object2,
+  # Aligned distance gives a starting point
+  min_dist <- computeAlignedDistance(
+    object_1 = object_1,
+    object_2 = object_2,
     q = q,
-    K = K
+    n_dirs = n_dirs
   )
-  if (minDist == 0) {
-    return(minDist)
+  if (min_dist == 0) {
+    return(min_dist)
   }
   # Only compute distances until min_dist is exceeded
-  for (m in 0:(K - 1)) { # m controls offset
+  for (m in 0:(n_dirs - 1)) {
     total <- 0
     for (x in ds) {
       d <- sum(sapply(
-        1:K,
+        1:n_dirs,
         function(k) {
-          pointDistance(
-            X = object1[[k]][[x]],
-            Y = object2[[((k + m) %% K) + 1]][[x]],
+          computePointDistance(
+            points_1 = object_1[[k]][[x]],
+            points_2 = object_2[[((k + m) %% n_dirs) + 1]][[x]],
             q = q
           )
         }
       ))
 
       total <- total + d
-      if (total >= minDist) {
+      if (total >= min_dist) {
         break
       }
     }
-    if (total < minDist) {
-      minDist <- total
+    if (total < min_dist) {
+      min_dist <- total
     }
   }
-  return(minDist)
+  return(min_dist)
 }
 
-alignedDistance <- function(object1,
-                            object2,
-                            q,
-                            K) {
+computeAlignedDistance <- function(object_1, object_2, q, n_dirs) {
   ds <- c("Ord0", "Rel1", "Ext0", "Ext1")
   total <- 0
 
   for (x in ds) {
     d <- sum(sapply(
-      1:K,
+      1:n_dirs,
       function(k) {
-        pointDistance(
-          X = object1[[k]][[x]],
-          Y = object2[[k]][[x]],
+        computePointDistance(
+          points_1 = object_1[[k]][[x]],
+          points_2 = object_2[[k]][[x]],
           q = q
         )
       }
@@ -116,66 +110,65 @@ alignedDistance <- function(object1,
   return(total)
 }
 
-pointDistance <- function(X, Y, q) {
-  nX <- length(X) / 2
-  nY <- length(Y) / 2
+computePointDistance <- function(points_1, points_2, q) {
+  n_1 <- length(points_1) / 2
+  n_2 <- length(points_2) / 2
 
-  if (nX + nY == 0) {
+  if (n_1 + n_2 == 0) {
     # No points
     return(0)
-  } else if (nX > 0 && nY == 0) {
-    # Only X has points
+  } else if (n_1 > 0 && n_2 == 0) {
+    # Only points_1 has points
     d <- sum(sapply(
-      1:nX,
-      function(i) diagonalDist(X[i, ], q)
+      1:n_1,
+      function(i) computeDistanceToDiagonal(points_1[i, ], q)
     ))
 
     return(d)
-  } else if (nX == 0 && nY > 0) {
-    # Only Y has points
+  } else if (n_1 == 0 && n_2 > 0) {
+    # Only points_2 has points
     d <- sum(sapply(
-      1:nY,
-      function(i) diagonalDist(Y[i, ], q)
+      1:n_2,
+      function(i) computeDistanceToDiagonal(points_2[i, ], q)
     ))
 
     return(d)
   } else {
     # Hungarian Algorithm
-    costMatrix <- vector()
+    cost_matrix <- vector()
 
-    for (i in 1:nX) {
-      r1 <- apply(Y, 1, function(x) distanceLp(X[i, ], x, q))
+    for (i in 1:n_1) {
+      r_1 <- apply(points_2, 1, function(x) compute_lp_distance(points_1[i, ], x, q))
 
-      distxy <- diagonalDist(X[i, ], q)
-      r2 <- rep(distxy, nX)
+      dist_xy <- computeDistanceToDiagonal(points_1[i, ], q)
+      r_2 <- rep(dist_xy, n_1)
 
-      costMatrix <- rbind(costMatrix, c(r1, r2))
+      cost_matrix <- rbind(cost_matrix, c(r_1, r_2))
 
-      r1 <- apply(Y, 1, function(x) diagonalDist(x, q))
-      r2 <- rep(0, nX)
+      r_1 <- apply(points_2, 1, function(x) computeDistanceToDiagonal(x, q))
+      r_2 <- rep(0, n_1)
 
-      for (j in 1:nY) {
-        costMatrix <- rbind(costMatrix, c(r1, r2))
+      for (j in 1:n_2) {
+        cost_matrix <- rbind(cost_matrix, c(r_1, r_2))
       }
 
-      pairing <- RcppHungarian::HungarianSolver(costMatrix)
+      pairing <- RcppHungarian::HungarianSolver(cost_matrix)
       idxs <- pairing[["pairs"]]
 
-      pairVals <- apply(
+      pair_vals <- apply(
         idxs, 1,
-        function(x) costMatrix[x[1], x[2]]
+        function(x) cost_matrix[x[1], x[2]]
       )
 
-      return(sum(pairVals))
+      return(sum(pair_vals))
     }
   }
 }
 
-diagonalDist <- function(p, q) {
-  d <- 2 * ((abs(p[2] - p[1]) / 2)^q)
-  return(d)
+computeDistanceToDiagonal <- function(p, q) {
+  return(2 * ((abs(p[2] - p[1]) / 2)^q))
 }
 
-distanceLp <- function(p1, p2, q) {
-  Lp <- abs(p1[1] - p2[1])^q + abs(p1[2] - p2[2])^q
+compute_lp_distance <- function(p1, p2, q) {
+  return(abs(p1[1] - p2[1])^q + abs(p1[2] - p2[2])^q)
 }

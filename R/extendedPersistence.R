@@ -4,27 +4,22 @@
 #' boundaries of a two dimensional shape, compute the zeroth order extended
 #' persistent homology transform of the shape in a given number of directions.
 #'
-#' Computing the extended persistent homology in a given direction requires
-#' information about the orientation of a curve. This information is used in
-#' determining whether a vertex is a local minimum with respect to the
-#' foreground of the original image.
-#'
-#' @param bdryCurves A list containing points along the boundary curves of the
+#' @param bdry_curves A list containing points along the boundary curves of the
 #' image. The list must have length number_of_curves + 1 with the first entry a
 #' vector whose entries are the numbers of positively oriented curves and
 #' negatively oriented curves, respectively. All of the positively oriented
 #' curves must be listed before the negatively oriented curves.
-#' @param imgName A string giving the name of the image.
-#' @param nDirections An integer giving the number of directions to use. This
+#' @param img_name A string giving the name of the image.
+#' @param n_dirs An integer giving the number of directions to use. This
 #' must be positive and even.
 #' @param tolerance Parameter to control the noise from the image. Any vertices
 #' closer than this in a particular direction will be classified as noise and
 #' ignored. (Default: 1/sqrt(2))
-#' @param saveOutput If TRUE, will save output to directory specified by
-#' outputDir. (Default: FALSE)
-#' @param outputDir The directory to save the output. If saveOutput is TRUE and
+#' @param save_output If TRUE, will save output to directory specified by
+#' output_dir. (Default: FALSE)
+#' @param output_dir The directory to save the output. If save_output is TRUE and
 #' no directory is specified, saves to working directory. (Default: NULL)
-#' @param fName The name of the output file saved. If saveOutput is TRUE and no
+#' @param f_name The name of the output file saved. If save_output is TRUE and no
 #' filename specified, prompts user for filename. (Default: NULL)
 #' @param verbose If TRUE, prints indictors of progress throughout.
 #' (Default: TRUE)
@@ -33,122 +28,117 @@
 #' containing the relevant part of the extended persistence diagram. The i-th
 #' entry corresponds to the i-th direction.
 #' @export
-extendedPersistence <- function(bdryCurves,
-                                imgName,
-                                nDirections,
-                                tolerance = 1 / sqrt(2),
-                                saveOutput = FALSE,
-                                outputDir = NULL,
-                                fName = NULL,
-                                verbose = TRUE) {
-  if (saveOutput) {
-    if (!dir.exists(outputDir)) {
-      outputDir <- getwd()
+computeExtendedPersistence <- function(bdry_curves,
+                                       img_name,
+                                       n_dirs,
+                                       tolerance = 1 / sqrt(2),
+                                       save_output = FALSE,
+                                       output_dir = NULL,
+                                       f_name = NULL,
+                                       verbose = TRUE) {
+  if (save_output) {
+    if (!dir.exists(output_dir)) {
+      output_dir <- getwd()
       print("Output directory doesn't exist.
                   Saving to working directory.")
     }
-    if (is.null(fName)) {
-      fName <- readLine(prompt = "Please provide a filename for save: ")
+    if (is.null(f_name)) {
+      f_name <- readLine(prompt = "Please provide a filename for save: ")
     }
-    outFile <- paste(outputDir, "/", fName, ".RDS", sep = "")
+    out_file <- paste(output_dir, "/", f_name, ".RDS", sep = "")
   }
-  if (nDirections < 2 || nDirections %% 2 == 1) {
-    stop("Number of directions must be non-zero and even")
+  if (n_dirs < 2 || n_dirs %% 2 == 1) {
+    stop("Number of directions must be at least two and even")
   } else {
-    directions <- t(sapply(1:nDirections, function(r) {
+    directions <- t(sapply(1:n_dirs, function(r) {
       c(
-        cos(2 * pi * r / nDirections),
-        sin(2 * pi * r / nDirections)
+        cos(2 * pi * r / n_dirs),
+        sin(2 * pi * r / n_dirs)
       )
     }))
-    midPoint <- (nDirections / 2) + 1
+    midpoint <- (n_dirs / 2) + 1
   }
 
-  xDiagram <- vector(mode = "list")
+  x_diagram <- vector(mode = "list")
 
-  oneSkeleton <- parseSkeleton(bdryCurves)
+  skeleton <- parseSkeleton(bdry_curves)
 
-  acCurves <- bdryCurves[[1]][1]
-  cCurves <- bdryCurves[[1]][2]
+  ac_curves <- bdry_curves[[1]][1]
+  c_curves <- bdry_curves[[1]][2]
 
-  for (d in 1:(nDirections / 2)) {
-    diagramName <- paste(imgName, "-", toString(d), sep = "")
+  for (d in 1:(n_dirs / 2)) {
+    diagram_name <- paste(img_name, "-", toString(d), sep = "")
 
-    dirVector <- directions[d, ]
+    dir_vector <- directions[d, ]
 
-    nComponents <- length(oneSkeleton)
-    zerothDiagram <- vector(mode = "list", length = nComponents)
+    n_components <- length(skeleton)
+    zeroth_diagram <- vector(mode = "list", length = n_components)
 
     count <- 1
 
-    for (i in 1:nComponents) {
-      skeletonComponent <- oneSkeleton[i][[1]]
-      if (i <= acCurves) {
-        orientation <- 0
-      } else {
-        orientation <- 1
-      }
-      heightFiltration <- computeHeightFiltration(
-        curve = skeletonComponent,
-        direction = dirVector,
-        orientation = orientation
+    for (i in 1:n_components) {
+      skeleton_component <- skeleton[i][[1]]
+
+      filtration <- computeHeightFiltration(
+        curve = skeleton_component,
+        direction = dir_vector
       )
 
-      zerothDiagram[[i]] <- computeDiagram(
-        filtration = heightFiltration,
+      zeroth_diagram[[i]] <- computeDiagram(
+        filtration = filtration,
+        direction = dir_vector,
         tolerance = tolerance
       )
     }
     extendedDiagram <- computeExtendedDiagram(
-      zerothDiagram = zerothDiagram,
-      nComponents = nComponents,
+      zerothDiagram = zeroth_diagram,
+      nComponents = n_components,
       diagramName = diagramName
     )
-
-    class(extendedDiagram) <- "extDiagram"
-    xDiagram[[d]] <- extendedDiagram
+    class(x_diagram) <- "extended_diagram"
+    x_diagram[[d]] <- x_diagram
   }
 
-  for (d in midPoint:nDirections) {
-    diagramName <- paste(imgName, "-", toString(d), sep = "")
-    negDiagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
-    negDiagram <- sapply(negDiagram.names, function(x) NULL)
+  for (d in midpoint:n_dirs) {
+    diagram_name <- paste(img_name, "-", toString(d), sep = "")
+    neg_diagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
+    negDiagram <- sapply(neg_diagram.names, function(x) NULL)
 
-    negDiagram[["Name"]] <- diagramName
-    k <- d - midPoint + 1
+    neg_diagram[["Name"]] <- diagram_name
+    k <- d - midpoint + 1
 
-    negDiagram[["Ord0"]] <- -xDiagram[[k]][["Rel1"]]
-    negDiagram[["Rel1"]] <- -xDiagram[[k]][["Ord0"]]
-    negDiagram[["Ext0"]] <- -matrix(xDiagram[[k]][["Ext0"]][, c(2, 1)],
+    neg_diagram[["Ord0"]] <- -x_diagram[[k]][["Rel1"]]
+    neg_diagram[["Rel1"]] <- -x_diagram[[k]][["Ord0"]]
+    neg_diagram[["Ext0"]] <- -matrix(x_diagram[[k]][["Ext0"]][, c(2, 1)],
       ncol = 2
     )
 
-    if (length(xDiagram[[k]][["Ext1"]]) > 0) {
-      negDiagram[["Ext1"]] <- -matrix(xDiagram[[k]][["Ext1"]][, c(2, 1)],
+    if (length(x_diagram[[k]][["Ext1"]]) > 0) {
+      neg_diagram[["Ext1"]] <- -matrix(x_diagram[[k]][["Ext1"]][, c(2, 1)],
         ncol = 2
       )
     } else {
-      negDiagram[["Ext1"]] <- vector()
+      neg_diagram[["Ext1"]] <- vector()
     }
-    class(negDiagram) <- "extDiagram"
-    xDiagram[[d]] <- negDiagram
+    class(neg_diagram) <- "extended_diagram"
+    x_diagram[[d]] <- neg_diagram
   }
 
-  class(xDiagram) <- "extDiagram"
+  class(x_diagram) <- "extended_diagram"
 
-  if (saveOutput) {
-    saveRDS(xDiagram, file = outFile)
+  if (save_output) {
+    saveRDS(x_diagram, file = out_file)
     if (verbose) {
-      cat("Successfully saved ", outFile, "\n", sep = "")
+      cat("Successfully saved ", out_file, "\n", sep = "")
     }
   } else {
     if (verbose) {
       cat("Extended persistence diagrams successfully computed for",
-        nDirections, "directions.\n",
+        n_dirs, "directions.\n",
         sep = " "
       )
     }
-    return(xDiagram)
+    return(x_diagram)
   }
 }
 
@@ -161,10 +151,10 @@ extendedPersistence <- function(bdryCurves,
 #'
 #' For more information, see \code{\link{extractBoundary}}.
 #'
-#' @param inputDir The directory containing the extracted boundary curves.
-#' @param outputDir The directory to save the output. If saveOutput is TRUE
+#' @param input_dir The directory containing the extracted boundary curves.
+#' @param output_dir The directory to save the output. If save_output is TRUE
 #' and no directory is specified, saves to working directory. (Default: NULL)
-#' @param nDirections An integer giving the number of directions to use. This
+#' @param n_dirs An integer giving the number of directions to use. This
 #' must be positive and even.
 #' @param tolerance Parameter to control the noise from the image. Any vertices
 #' closer than this in a particular direction will be classified as noise and
@@ -172,18 +162,18 @@ extendedPersistence <- function(bdryCurves,
 #' @param verbose If TRUE, prints indictors of progress throughout.
 #' (Default: TRUE)
 #' @export
-multiExtendedPersistence <- function(inputDir,
-                                     outputDir,
-                                     nDirections,
+multiExtendedPersistence <- function(input_dir,
+                                     output_dir,
+                                     n_dirs,
                                      tolerance = 1 / sqrt(2),
                                      verbose = TRUE) {
-  if (!dir.exists(outputDir)) {
-    outputDir <- getwd()
+  if (!dir.exists(output_dir)) {
+    output_dir <- getwd()
     print("Output directory doesn't exist. Saving to working directory.")
   }
 
   files <- list.files(
-    path = inputDir,
+    path = input_dir,
     pattern = "*.RDS",
     full.names = TRUE,
     recursive = FALSE
@@ -195,37 +185,37 @@ multiExtendedPersistence <- function(inputDir,
       cat("Commencing,", f, "\n", sep = " ")
     }
 
-    fName <- tail(strsplit(strsplit(f, ".", fixed = TRUE)[[1]][1],
+    f_name <- tail(strsplit(strsplit(f, ".", fixed = TRUE)[[1]][1],
       "/",
       fixed = TRUE
     )[[1]], n = 1)
 
-    bdryCurves <- readRDS(f)
+    bdry_curves <- readRDS(f)
 
     extendedPersistence(
-      bdryCurves = bdryCurves,
-      imgName = fName,
-      nDirections = nDirections,
+      bdry_curves = bdry_curves,
+      img_name = f_name,
+      n_dirs = n_dirs,
       tolerance = tolerance,
-      saveOutput = TRUE,
-      outputDir = outputDir,
-      fName = fName,
+      save_output = TRUE,
+      output_dir = output_dir,
+      f_name = f_name,
       verbose = verbose
     )
   }
 }
 
-parseSkeleton <- function(bdryCurves) {
+parseSkeleton <- function(bdry_curves) {
   complex <- vector(mode = "list")
 
   skeleton.names <- c("vertex", "edge", "coords")
 
-  acCurves <- bdryCurves[[1]][1]
-  cCurves <- bdryCurves[[1]][2]
-  nCurves <- acCurves + cCurves
+  ac_curves <- bdry_curves[[1]][1]
+  c_curves <- bdry_curves[[1]][2]
+  n_curves <- ac_curves + c_curves
 
-  for (i in 2:(nCurves + 1)) {
-    curve <- bdryCurves[[i]]
+  for (i in 2:(n_curves + 1)) {
+    curve <- bdry_curves[[i]]
     skeleton <- sapply(skeleton.names, function(x) NULL)
 
     if (all(curve[1, 1:2] == curve[nrow(curve), 1:2])) {
@@ -263,10 +253,8 @@ parseSkeleton <- function(bdryCurves) {
   return(complex)
 }
 
-computeHeightFiltration <- function(curve,
-                                    direction,
-                                    orientation) {
-  filtration.names <- c("height", "lowerNbrs", "coords", "minimal")
+computeHeightFiltration <- function(curve, direction) {
+  filtration.names <- c("height", "lowerNbrs", "coords")
   filtration <- sapply(filtration.names, function(x) NULL)
 
   filtration[["coords"]] <- curve[["coords"]]
@@ -276,80 +264,24 @@ computeHeightFiltration <- function(curve,
     function(v) dotProduct(v, direction)
   )
 
-  N <- max(curve[["vertex"]])
-  filtration[["minimal"]] <- vector(length = N)
+  n_vertices <- max(curve[["vertex"]])
 
-  vtxs <- rbind(
-    curve[["coords"]][N, ],
-    curve[["coords"]][1, ],
-    curve[["coords"]][2, ]
-  )
-  hs <- c(
-    filtration[["height"]][N],
-    filtration[["height"]][1],
-    filtration[["height"]][2]
-  )
+  filtration[["lowerNbrs"]] <- vector(mode = "list", length = n_vertices)
 
-  filtration[["minimal"]][1] <- testMinimality(
-    vtxs,
-    hs,
-    direction,
-    orientation
-  )
-
-  vtxs <- rbind(
-    curve[["coords"]][N - 1, ],
-    curve[["coords"]][N, ],
-    curve[["coords"]][1, ]
-  )
-  hs <- c(
-    filtration[["height"]][N - 1],
-    filtration[["height"]][N],
-    filtration[["height"]][1]
-  )
-
-  filtration[["minimal"]][N] <- testMinimality(
-    vtxs,
-    hs,
-    direction,
-    orientation
-  )
-
-  for (i in 2:(N - 1)) {
-    vtxs <- rbind(
-      curve[["coords"]][i - 1, ],
-      curve[["coords"]][i, ],
-      curve[["coords"]][i + 1, ]
-    )
-    hs <- c(
-      filtration[["height"]][i - 1],
-      filtration[["height"]][i],
-      filtration[["height"]][i + 1]
-    )
-
-    filtration[["minimal"]][i] <- testMinimality(
-      vtxs,
-      hs,
-      direction,
-      orientation
-    )
-  }
-
-  filtration[["lowerNbrs"]] <- vector(mode = "list", length = N)
-
-  for (i in 1:N) {
+  for (i in 1:n_vertices) {
     e <- curve[["edge"]][i, ]
 
-    h1 <- filtration[["height"]][e[1]]
-    h2 <- filtration[["height"]][e[2]]
+    h_1 <- filtration[["height"]][e[1]]
+    h_2 <- filtration[["height"]][e[2]]
 
-    if (h1 < h2) {
+    if (h_1 < h_2) {
       filtration[["lowerNbrs"]][[e[2]]] <- append(
         filtration[["lowerNbrs"]][[e[2]]],
         e[1]
       )
-    } else if (h1 == h2) {
-      # Vertex with lower index is lower neighbour.
+    } else if (h_1 == h_2) {
+      # If two adjacent vertices have the same height, then the one with the
+      # lower index is the lower neighbour
       if (e[1] < e[2]) {
         filtration[["lowerNbrs"]][[e[2]]] <- append(
           filtration[["lowerNbrs"]][[e[2]]],
@@ -371,60 +303,15 @@ computeHeightFiltration <- function(curve,
   return(filtration)
 }
 
-dotProduct <- function(v1, v2) {
-  return(sum(v1 * v2))
+dotProduct <- function(v_1, v_2) {
+  return(sum(v_1 * v_2))
 }
 
-testMinimality <- function(vertices,
-                           heights,
-                           direction,
-                           orientation,
-                           colinearCond = 1e-8) {
-  vk <- vertices[2, ]
-  vPrev <- vertices[1, ]
-  vNext <- vertices[3, ]
+computeDiagram <- function(filtration, direction, tolerance) {
+  sorted_heights <- unique(sort(filtration[["height"]]))
+  n_vertices <- length(filtration[["height"]])
 
-  hk <- heights[2]
-  hPrev <- heights[1]
-  hNext <- heights[3]
-
-  if (hk > hPrev || hk > hNext) {
-    return(FALSE)
-  }
-
-  if (abs(hk - hPrev) <= colinearCond && abs(hk - hNext) <= colinearCond) {
-    return(testNormalVector(vk, vNext, direction))
-  } else {
-    P <- c(
-      0.5 * (vNext[1] + vPrev[1]),
-      0.5 * (vNext[2] + vPrev[2])
-    )
-
-    delta <- (vNext[1] - vk[1]) * (P[2] - vk[2]) -
-      (vNext[2] - vk[2]) * (P[1] - vk[1])
-
-    if (delta != 0) {
-      return(delta > 0)
-    } else {
-      stop("Numerical error in minimality test.
-                 Could not determine minimality.")
-    }
-  }
-}
-
-testNormalVector <- function(v1,
-                             v2,
-                             direction) {
-  normalVect <- c(v2[2] - v1[2], v2[1] - v1[1]) * c(-1, 1)
-
-  return(dotProduct(direction, normalVect) > 0)
-}
-
-computeDiagram <- function(filtration,
-                           tolerance) {
-  sortedHeights <- unique(sort(filtration[["height"]]))
-
-  diagram.names <- c("finite", "extended", "minimal", "exMinimal")
+  diagram.names <- c("finite", "finite_minimal", "extended", "extended_minimal")
   diagram <- sapply(diagram.names, function(x) NULL)
 
   parents <- vector(
@@ -433,14 +320,14 @@ computeDiagram <- function(filtration,
   )
 
   diagram[["extended"]] <- c(
-    head(sortedHeights, 1),
-    tail(sortedHeights, 1)
+    head(sorted_heights, 1),
+    tail(sorted_heights, 1)
   )
 
-  for (hv in sortedHeights) {
-    hVertex <- which(filtration[["height"]] == hv)
+  for (h in sorted_heights) {
+    h_vertices <- which(filtration[["height"]] == h)
 
-    for (v in hVertex) {
+    for (v in h_vertices) {
       if (is.null(filtration[["lowerNbrs"]][[v]])) {
         # The vertex v has no lower neighbours.
         parents[[v]] <- v
@@ -455,11 +342,11 @@ computeDiagram <- function(filtration,
         if (length(components) == 1) {
           parents[[v]] <- components
         } else {
-          birthTimes <- sapply(
+          birth_times <- sapply(
             components,
             function(x) filtration[["height"]][x]
           )
-          minBirthTime <- min(birthTimes)
+          min_birth_time <- min(birth_times)
 
           components <- sort(components)
 
@@ -469,37 +356,65 @@ computeDiagram <- function(filtration,
           count <- 0
 
           for (x in components) {
-            hx <- filtration[["height"]][x]
-            if (hx > minBirthTime) {
-              if (hx < hv) {
+            h_x <- filtration[["height"]][x]
+            if (h_x > min_birth_time) {
+              if (h_x < h) {
                 # Component born at height of x dies at
-                # the current height.
-                if (abs(hx - hv) > tolerance) {
+                # the current height h.
+                if (abs(h_x - h) > tolerance) {
                   diagram[["finite"]] <- rbind(
                     diagram[["finite"]],
-                    c(hx, hv)
+                    c(h_x, h)
                   )
-                  diagram[["minimal"]] <- append(
-                    diagram[["minimal"]],
-                    filtration[["minimal"]][x]
+                  # Check if vertex x is minimal
+                  idxs <- (c(x - 2, x - 1, x) %% n_vertices) + 1
+                  vertices <- c(
+                    filtration[["coords"]][idxs[1], ],
+                    filtration[["coords"]][idxs[2], ],
+                    filtration[["coords"]][idxs[3], ]
+                  )
+                  heights <- c(
+                    filtration[["height"]][idxs[1]],
+                    filtration[["height"]][idxs[2]],
+                    filtration[["height"]][idxs[3]]
+                  )
+                  diagram[["finite_minimal"]] <- append(
+                    diagram[["finite_minimal"]],
+                    testMinimality(vertices = vertices,
+                                   heights = heights,
+                                   direction = direction)
                   )
                 }
               }
-            } else if (hx == minBirthTime) {
+            } else if (h_x == min_birth_time) {
               if (count == 0) {
-                newComponent <- x
-                parents[[v]] <- newComponent
+                new_component <- x
+                parents[[v]] <- new_component
                 count <- 1
               } else {
-                if (hx < hv) {
-                  if (abs(hx - hv) > tolerance) {
+                if (h_x < h) {
+                  if (abs(h_x - h) > tolerance) {
                     diagram[["finite"]] <- rbind(
                       diagram[["finite"]],
-                      c(hx, hv)
+                      c(h_x, h)
                     )
-                    diagram[["minimal"]] <- append(
-                      diagram[["minimal"]],
-                      filtration[["minimal"]][x]
+                    # Check if vertex x is minimal
+                    idxs <- (c(x - 2, x - 1, x) %% n_vertices) + 1
+                    vertices <- c(
+                      filtration[["coords"]][idxs[1], ],
+                      filtration[["coords"]][idxs[2], ],
+                      filtration[["coords"]][idxs[3], ]
+                    )
+                    heights <- c(
+                      filtration[["height"]][idxs[1]],
+                      filtration[["height"]][idxs[2]],
+                      filtration[["height"]][idxs[3]]
+                    )
+                    diagram[["finite_minimal"]] <- append(
+                      diagram[["finite_minimal"]],
+                      testMinimality(vertices = vertices,
+                                     heights = heights,
+                                     direction = direction)
                     )
                   }
                 }
@@ -509,22 +424,40 @@ computeDiagram <- function(filtration,
           # All components found are part of same connected component.
           # Update this information
           for (x in components) {
-            parents[[x]] <- newComponent
+            parents[[x]] <- new_component
           }
         }
       }
     }
   }
-  birthPoint <- unique(sapply(
+  birth_point <- unique(sapply(
     unique(parents),
     function(x) findParent(x, parents)
   ))
 
-  if (length(birthPoint) > 1) {
+  if (length(birth_point) > 1) {
     stop("Simple closed curve has more than one essential class.")
   }
-
-  diagram[["exMinimal"]] <- filtration[["minimal"]][[birthPoint[1]]]
+  
+  # Check if vertex x is minimal
+  x <- birth_point[1]
+  idxs <- (c(x - 2, x - 1, x) %% n_vertices) + 1
+  vertices <- c(
+    filtration[["coords"]][idxs[1], ],
+    filtration[["coords"]][idxs[2], ],
+    filtration[["coords"]][idxs[3], ]
+  )
+  heights <- c(
+    filtration[["height"]][idxs[1]],
+    filtration[["height"]][idxs[2]],
+    filtration[["height"]][idxs[3]]
+  )
+  
+  diagram[["extended_minimal"]] <- testMinimality(
+    vertices = vertices,
+    heights = heights,
+    direction = direction
+  )
 
   return(diagram)
 }
@@ -539,55 +472,100 @@ findParent <- function(x,
   }
 }
 
-computeExtendedDiagram <- function(zerothDiagram,
-                                   nComponents,
-                                   diagramName) {
-  exDiagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
-  exDiagram <- sapply(exDiagram.names, function(x) NULL)
+computeExtendedDiagram <- function(zeroth_diagram,
+                                   n_components,
+                                   diagram_name) {
+  ex_diagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
+  ex_diagram <- sapply(ex_diagram.names, function(x) NULL)
 
-  Ord0 <- vector()
-  Rel1 <- vector()
-  Ext0 <- vector()
-  Ext1 <- vector()
+  ord_0 <- vector()
+  rel_1 <- vector()
+  ext_0 <- vector()
+  ext_1 <- vector()
 
-  exDiagram[["Name"]] <- diagramName
-  for (i in 1:nComponents) {
-    diagram <- zerothDiagram[[i]]
+  ex_diagram[["Name"]] <- diagram_name
+  for (i in 1:n_components) {
+    diagram <- zeroth_diagram[[i]]
 
     if (length(diagram[["finite"]]) > 0) {
       nFinite <- nrow(diagram[["finite"]])
 
       for (j in 1:nFinite) {
-        if (diagram[["minimal"]][j]) {
-          Ord0 <- rbind(
-            Ord0,
+        if (diagram[["finite_minimal"]][j]) {
+          ord_0 <- rbind(
+            ord_0,
             diagram[["finite"]][j, ]
           )
         } else {
-          Rel1 <- rbind(
-            Rel1,
+          rel_1 <- rbind(
+            rel_1,
             rev(diagram[["finite"]][j, ])
           )
         }
       }
     }
 
-    if (diagram[["exMinimal"]]) {
-      Ext0 <- rbind(
-        Ext0,
+    if (diagram[["extended_minimal"]]) {
+      ext_0 <- rbind(
+        ext_0,
         diagram[["extended"]]
       )
     } else {
-      Ext1 <- rbind(
-        Ext1,
+      ext_1 <- rbind(
+        ext_1,
         rev(diagram[["extended"]])
       )
     }
   }
-  exDiagram[["Ord0"]] <- Ord0
-  exDiagram[["Rel1"]] <- Rel1
-  exDiagram[["Ext0"]] <- Ext0
-  exDiagram[["Ext1"]] <- Ext1
+  ex_diagram[["Ord0"]] <- ord_0
+  ex_diagram[["Rel1"]] <- rel_1
+  ex_diagram[["Ext0"]] <- ext_0
+  ex_diagram[["Ext1"]] <- ext_1
 
-  return(exDiagram)
+  return(ex_diagram)
+}
+
+testMinimality <- function(vertices,
+                           heights,
+                           direction,
+                           colinear_cond = 1e-8) {
+  v_k <- vertices[2, ]
+  v_prev <- vertices[1, ]
+  v_next <- vertices[3, ]
+
+  h_k <- heights[2]
+  h_prev <- heights[1]
+  h_next <- heights[3]
+
+  if (h_k > h_prev || h_k > h_next) {
+    return(FALSE)
+  }
+
+  if (abs(h_k - h_prev) <= colinear_cond && 
+      abs(h_k - h_next) <= colinear_cond) {
+    return(testNormalVector(v_k, v_next, direction))
+  } else {
+    P <- c(
+      0.5 * (v_next[1] + v_prev[1]),
+      0.5 * (v_next[2] + v_prev[2])
+    )
+
+    delta <- (v_next[1] - v_k[1]) * (P[2] - v_k[2]) -
+      (v_next[2] - v_k[2]) * (P[1] - v_k[1])
+
+    if (delta != 0) {
+      return(delta > 0)
+    } else {
+      stop("Numerical error in minimality test.
+                 Could not determine minimality.")
+    }
+  }
+}
+
+testNormalVector <- function(v_1,
+                             v_2,
+                             direction) {
+  normal_vect <- c(v_2[2] - v_1[2], v_2[1] - v_1[1]) * c(-1, 1)
+
+  return(dotProduct(direction, normal_vect) > 0)
 }
