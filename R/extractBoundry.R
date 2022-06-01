@@ -25,11 +25,11 @@
 #' @param img A binary image read in from the imager package.
 #' @param background The value of the background, 0 for black and 1 for white.
 #' (Default: 0)
-#' @param saveOutput If TRUE, will save output to directory specified by
-#' outputDir. (Default: FALSE)
-#' @param outputDir The directory to save the output. If saveOutput is TRUE and
+#' @param save_output If TRUE, will save output to directory specified by
+#' output_dir. (Default: FALSE)
+#' @param output_dir The directory to save the output. If save_output is TRUE and
 #' no directory is specified, saves to working directory. (Default: NULL)
-#' @param fName The name of the output file saved. If saveOutput is TRUE and no
+#' @param f_name The name of the output file saved. If save_output is TRUE and no
 #' filename specified, prompts user for filename. (Default: NULL)
 #' @param verbose If TRUE, prints indictors of progress throughout.
 #' (Default: TRUE)
@@ -38,18 +38,18 @@
 #' @export
 extractBoundary <- function(img,
                             background = 0,
-                            saveOutput = FALSE,
-                            outputDir = NULL,
-                            fName = NULL,
+                            save_output = FALSE,
+                            output_dir = NULL,
+                            f_name = NULL,
                             verbose = TRUE) {
-  if (saveOutput) {
-    if (!dir.exists(outputDir)) {
-      outputDir <- getwd()
+  if (save_output) {
+    if (!dir.exists(output_dir)) {
+      output_dir <- getwd()
     }
-    if (is.null(fName)) {
-      fName <- readline(prompt = "Please provide a filename for save: ")
+    if (is.null(f_name)) {
+      f_name <- readline(prompt = "Please provide a filename for save: ")
     }
-    outFile <- paste(outputDir, "/", fName, ".RDS", sep = "")
+    out_file <- paste(output_dir, "/", f_name, ".RDS", sep = "")
   }
   # Pad image
   img <- imager::pad(img, nPix = 1, axes = "x", pos = -1, val = background)
@@ -57,14 +57,14 @@ extractBoundary <- function(img,
   img <- imager::pad(img, nPix = 1, axes = "y", pos = -1, val = background)
   img <- imager::pad(img, nPix = 1, axes = "y", pos = 1, val = background)
 
-  imgMatrix <- componentLabelling(img, background, verbose)
+  img_matrix <- componentLabelling(img, background, verbose)
 
-  boundary <- boundaryTrace(imgMatrix, verbose)
+  boundary <- boundaryTrace(img_matrix, verbose)
 
-  if (saveOutput) {
-    saveRDS(boundary, file = outFile)
+  if (save_output) {
+    saveRDS(boundary, file = out_file)
     if (verbose) {
-      cat("Successfully saved ", outFile, "\n", sep = "")
+      cat("Successfully saved ", out_file, "\n", sep = "")
     }
   } else {
     if (verbose) {
@@ -84,37 +84,37 @@ extractBoundary <- function(img,
 #'
 #' For more information, see \code{\link{extractBoundary}}.
 #'
-#' @param inputDir The directory containing the images.
-#' @param imgType The image file type for input files, specified without a
+#' @param input_dir The directory containing the images.
+#' @param img_type The image file type for input files, specified without a
 #' "." (Default: "png")
 #' @param background The value of the background, 0 for black and 1 for white.
 #' (Default: 0)
-#' @param saveOutput If TRUE, will save output to directory specified by
-#' outputDir. (Default: FALSE)
-#' @param outputDir The directory to save the output. If saveOutput is TRUE and
+#' @param save_output If TRUE, will save output to directory specified by
+#' output_dir. (Default: FALSE)
+#' @param output_dir The directory to save the output. If save_output is TRUE and
 #' no directory is specified, saves to working directory. (Default: NULL)
 #' @param verbose If TRUE, prints indictors of progress throughout.
 #' (Default: TRUE)
 #' @return A list for each image containing the points of the boundary curves.
-#' Stored in individual files (if saveOutput = TRUE) or a list.
+#' Stored in individual files (if save_output = TRUE) or a list.
 #' @export
-multiExtractBoundary <- function(inputDir,
-                                 imgType = "png",
+multiExtractBoundary <- function(input_dir,
+                                 img_type = "png",
                                  background = 0,
-                                 saveOutput = FALSE,
-                                 outputDir = NULL,
+                                 save_output = FALSE,
+                                 output_dir = NULL,
                                  verbose = TRUE) {
-  fType <- paste("*.", imgType, sep = "")
+  f_type <- paste("*.", img_type, sep = "")
   files <- list.files(
-    path = inputDir,
-    pattern = fType,
+    path = input_dir,
+    pattern = f_type,
     full.names = TRUE,
     recursive = FALSE
   )
 
-  if (saveOutput) {
-    if (!dir.exists(outputDir)) {
-      outputDir <- getwd()
+  if (save_output) {
+    if (!dir.exists(output_dir)) {
+      output_dir <- getwd()
     }
   } else {
     boundaries <- vector(mode = "list", length = length(files))
@@ -127,17 +127,17 @@ multiExtractBoundary <- function(inputDir,
 
     img <- imager::load.image(files[[i]])
 
-    if (saveOutput) {
-      fString <- strsplit(files[[i]], "/", fixed = TRUE)
-      fName <- strsplit(fString[[1]][length(fString[[1]])], ".",
+    if (save_output) {
+      f_string <- strsplit(files[[i]], "/", fixed = TRUE)
+      f_name <- strsplit(f_string[[1]][length(f_string[[1]])], ".",
         fixed = TRUE
       )[[1]][1]
       extractBoundary(
         img = img,
         background = background,
-        saveOutput = TRUE,
-        outputDir = outputDir,
-        fName = fName,
+        save_output = TRUE,
+        output_dir = output_dir,
+        f_name = f_name,
         verbose = verbose
       )
     } else {
@@ -149,8 +149,8 @@ multiExtractBoundary <- function(inputDir,
     }
   }
 
-  if (saveOutput) {
-    cat("All boundaries successfully saved in:\n", outputDir, sep = "")
+  if (save_output) {
+    cat("All boundaries successfully saved in:\n", output_dir, sep = "")
   } else {
     return(boundaries)
   }
@@ -162,88 +162,88 @@ componentLabelling <- function(img,
   w <- imager::width(img)
   h <- imager::height(img)
 
-  imgMatrix <- matrix(img, nrow = h, ncol = w, byrow = TRUE)
-  imgMatrix <- apply(imgMatrix, 2, rev)
+  img_matrix <- matrix(img, nrow = h, ncol = w, byrow = TRUE)
+  img_matrix <- apply(img_matrix, 2, rev)
 
-  if (any(imgMatrix > 1) || any(imgMatrix < 0)) {
+  if (any(img_matrix > 1) || any(img_matrix < 0)) {
     stop("Image not binary. Pixel values must be either 0 or 1.")
   }
 
-  equivLabelsFG <- vector(mode = "list")
-  equivLabelsBG <- vector(mode = "list")
+  labels_fg <- vector(mode = "list")
+  labels_bg <- vector(mode = "list")
 
-  currentFG <- 1
-  currentBG <- -1
+  current_fg <- 1
+  current_bg <- -1
 
   foreground <- 1 - background
   # image is scanned left-to-right, top-to-bottom
   for (i in 1:h) {
     for (j in 1:w) {
-      if (imgMatrix[i, j] == foreground) {
+      if (img_matrix[i, j] == foreground) {
         # Hit a foreground pixel. Assess the mask (X's):
         # X X X
         # X * o
         # o o o
         mask <- c(
-          imgMatrix[i, j - 1],
-          imgMatrix[i - 1, j - 1],
-          imgMatrix[i - 1, j],
-          imgMatrix[i - 1, j + 1]
+          img_matrix[i, j - 1],
+          img_matrix[i - 1, j - 1],
+          img_matrix[i - 1, j],
+          img_matrix[i - 1, j + 1]
         )
 
         if (mask[3] > 0) {
-          imgMatrix[i, j] <- mask[3]
+          img_matrix[i, j] <- mask[3]
         } else if (mask[1] > 0) {
-          imgMatrix[i, j] <- mask[1]
+          img_matrix[i, j] <- mask[1]
           if (mask[4] > 0) {
-            equivLabelsFG <- resolveLabels(mask[4],
+            labels_fg <- resolveLabels(mask[4],
               mask[1],
-              equivLabelsFG,
+              labels_fg,
               bg = FALSE
             )
           }
         } else if (mask[2] > 0) {
-          imgMatrix[i, j] <- mask[2]
+          img_matrix[i, j] <- mask[2]
           if (mask[4] > 0) {
-            equivLabelsFG <- resolveLabels(mask[2],
+            labels_fg <- resolveLabels(mask[2],
               mask[4],
-              equivLabelsFG,
+              labels_fg,
               bg = FALSE
             )
           }
         } else if (mask[4] > 0) {
-          imgMatrix[i, j] <- mask[4]
+          img_matrix[i, j] <- mask[4]
         } else {
-          imgMatrix[i, j] <- currentFG
-          equivLabelsFG[[currentFG]] <- currentFG
-          currentFG <- currentFG + 1
+          img_matrix[i, j] <- current_fg
+          labels_fg[[current_fg]] <- current_fg
+          current_fg <- current_fg + 1
         }
       } else {
         # Found a background pixel
         mask <- c(0, 0)
         if (i > 1) {
-          mask[2] <- imgMatrix[i - 1, j]
+          mask[2] <- img_matrix[i - 1, j]
         }
         if (j > 1) {
-          mask[1] <- imgMatrix[i, j - 1]
+          mask[1] <- img_matrix[i, j - 1]
         }
 
         if (mask[2] < 0) {
-          imgMatrix[i, j] <- mask[2]
+          img_matrix[i, j] <- mask[2]
           if (mask[1] < 0) {
-            equivLabelsBG <- resolveLabels(-mask[1],
+            labels_bg <- resolveLabels(-mask[1],
               -mask[2],
-              equivLabelsBG,
+              labels_bg,
               bg = TRUE
             )
           }
         } else if (mask[1] < 0) {
-          imgMatrix[i, j] <- mask[1]
+          img_matrix[i, j] <- mask[1]
         } else {
-          imgMatrix[i, j] <- currentBG
-          x <- -currentBG
-          equivLabelsBG[[x]] <- currentBG
-          currentBG <- currentBG - 1
+          img_matrix[i, j] <- current_bg
+          x <- -current_bg
+          labels_bg[[x]] <- current_bg
+          current_bg <- current_bg - 1
         }
       }
     }
@@ -253,53 +253,53 @@ componentLabelling <- function(img,
               Now constructing representative tables.")
   }
 
-  for (i in 1:length(equivLabelsFG)) {
-    for (lab in equivLabelsFG[[i]]) {
-      equivLabelsFG[[lab]] <- unique(c(
-        equivLabelsFG[[lab]],
-        equivLabelsFG[[i]]
+  for (i in seq_len(length(labels_fg))) {
+    for (lab in labels_fg[[i]]) {
+      labels_fg[[lab]] <- unique(c(
+        labels_fg[[lab]],
+        labels_fg[[i]]
       ))
     }
   }
 
-  for (i in 1:length(equivLabelsBG)) {
-    for (lab in equivLabelsBG[[i]]) {
+  for (i in seq_len(length(labels_bg))) {
+    for (lab in labels_bg[[i]]) {
       x <- -lab
-      equivLabelsBG[[x]] <- unique(c(
-        equivLabelsBG[[x]],
-        equivLabelsBG[[i]]
+      labels_bg[[x]] <- unique(c(
+        labels_bg[[x]],
+        labels_bg[[i]]
       ))
     }
   }
 
-  repTableFG <- vector()
-  repTableBG <- vector()
+  rep_table_fg <- vector()
+  rep_table_bg <- vector()
 
-  for (i in 1:length(equivLabelsFG)) {
-    repTableFG <- append(repTableFG, min(equivLabelsFG[[i]]))
+  for (i in 1:length(labels_fg)) {
+    rep_table_fg <- append(rep_table_fg, min(labels_fg[[i]]))
   }
-  for (i in 1:length(equivLabelsBG)) {
-    repTableBG <- append(repTableBG, max(equivLabelsBG[[i]]))
+  for (i in 1:length(labels_bg)) {
+    rep_table_bg <- append(rep_table_bg, max(labels_bg[[i]]))
   }
 
   lab <- 1
-  for (i in 1:(currentFG - 1)) {
-    if (repTableFG[i] == i) {
-      repTableFG[i] <- lab
+  for (i in 1:(current_fg - 1)) {
+    if (rep_table_fg[i] == i) {
+      rep_table_fg[i] <- lab
       lab <- lab + 1
     } else {
-      repTableFG[i] <- repTableFG[repTableFG[i]]
+      rep_table_fg[i] <- rep_table_fg[rep_table_fg[i]]
     }
   }
 
   lab <- -1
-  for (i in 1:(abs(currentBG) - 1)) {
-    if (repTableBG[i] == -i) {
-      repTablBG <- lab
+  for (i in 1:(abs(current_bg) - 1)) {
+    if (rep_table_bg[i] == -i) {
+      rep_table_bg[i] <- lab
       lab <- lab - 1
     } else {
-      x <- -repTableBG[i]
-      repTableBG[i] <- repTableBG[x]
+      x <- -rep_table_bg[i]
+      rep_table_bg[i] <- rep_table_bg[x]
     }
   }
 
@@ -309,77 +309,79 @@ componentLabelling <- function(img,
 
   for (i in 1:h) {
     for (j in 1:w) {
-      if (imgMatrix[i, j] > 0) {
-        imgMatrix[i, j] <- repTableFG[imgMatrix[i, j]]
+      if (img_matrix[i, j] > 0) {
+        img_matrix[i, j] <- rep_table_fg[img_matrix[i, j]]
       } else {
-        x <- -imgMatrix[i, j]
-        imgMatrix[i, j] <- repTableBG[x]
+        x <- -img_matrix[i, j]
+        img_matrix[i, j] <- rep_table_bg[x]
       }
     }
   }
 
-  return(imgMatrix)
+  return(img_matrix)
 }
 
-resolveLabels <- function(lab1,
-                          lab2,
-                          labList,
+resolveLabels <- function(l_1,
+                          l_2,
+                          labs,
                           bg) {
   if (bg) {
-    labList[[lab1]] <- unique(c(labList[[lab1]], labList[[lab2]], -lab2))
-    labList[[lab2]] <- unique(c(labList[[lab1]], labList[[lab2]], -lab1))
+    labs[[l_1]] <- unique(c(labs[[l_1]], labs[[l_2]], -l_2))
+    labs[[l_2]] <- unique(c(labs[[l_1]], labs[[l_2]], -l_1))
   } else {
-    labList[[lab1]] <- unique(c(
-      labList[[lab1]],
-      labList[[lab2]],
-      lab1,
-      lab2
+    labs[[l_1]] <- unique(c(
+      labs[[l_1]],
+      labs[[l_2]],
+      l_1,
+      l_2
     ))
-    labList[[lab2]] <- unique(c(
-      labList[[lab1]],
-      labList[[lab2]],
-      lab1,
-      lab2
+    labs[[l_2]] <- unique(c(
+      labs[[l_1]],
+      labs[[l_2]],
+      l_1,
+      l_2
     ))
   }
-  return(labList)
+  return(labs)
 }
 
-boundaryTrace <- function(imgMatrix,
+boundaryTrace <- function(img_matrix,
                           verbose) {
-  w <- ncol(imgMatrix) - 1
-  h <- nrow(imgMatrix) - 1
+  w <- ncol(img_matrix) - 1
+  h <- nrow(img_matrix) - 1
 
-  startPx <- vector()
   regions <- vector()
 
-  maxRegionLabels <- c(min(imgMatrix), max(imgMatrix))
+  extreme_labels <- c(min(img_matrix), max(img_matrix))
   final <- FALSE
 
-  cCurves <- vector(mode = "list") # clockwise curve, i.e. inner
-  acCurves <- vector(mode = "list") # anticlockwise curve, i.e. outer.
+  c_curves <- vector(mode = "list") # clockwise curve, i.e. inner
+  ac_curves <- vector(mode = "list") # anticlockwise curve, i.e. outer.
 
-  acCount <- 1
+  ac_count <- 0
+  c_count <- 0
 
   for (i in 2:h) {
     for (j in 2:w) {
-      if (imgMatrix[i, j] != -1) {
-        if (!any(regions == imgMatrix[i, j])) {
-          lab <- imgMatrix[i, j]
+      if (img_matrix[i, j] != -1) {
+        if (!any(regions == img_matrix[i, j])) {
+          lab <- img_matrix[i, j]
           if (lab > 0) {
-            acCurves[[acCount]] <- traceCurve(imgMatrix, i, j, lab)
-            acCount <- acCount + 1
+            ac_count <- ac_count + 1
+            ac_curves[[ac_count]] <- traceCurve(img_matrix, i, j, lab)
           } else {
-            cCurves[[cCount]] <- traceCurve(imgMatrix, i, j, lab)
-            cCount <- cCount + 1
+            c_count <- c_count + 1
+            c_curves[[c_count]] <- traceCurve(img_matrix, i, j, lab)
           }
           regions <- append(
             regions,
-            imgMatrix[i, j]
+            img_matrix[i, j]
           )
         }
-        if (any(regions == maxRegionLabels[1]) &&
-          any(regions == maxRegionLabels[2])) {
+        # if (any(regions == extreme_labels[1]) &&
+        #  any(regions == extreme_labels[2])) {
+        if (ac_count == extreme_labels[2] &&
+          -c_count == extreme_labels[1] + 1) {
           final <- TRUE
           break
         }
@@ -390,35 +392,44 @@ boundaryTrace <- function(imgMatrix,
     }
   }
 
-  totalCurves <- length(cCurves) + length(acCurves)
+  total_curves <- length(c_curves) + length(ac_curves)
 
   if (verbose) {
-    cat("Successfully extracted", totalCurves, "curves:\n",
-      length(acCurves),
+    cat("Successfully extracted", total_curves, "curves:\n",
+      length(ac_curves),
       "anticlockwise curves\n",
-      length(cCurves),
+      length(c_curves),
       "clockwise curves\n",
       sep = " "
     )
   }
-  boundaryCurves <- vector(mode = "list")
-  boundaryCurves[[1]] <- c(length(acCurves), length(cCurves))
-  boundaryCurves <- do.call(c, list(boundaryCurves, acCurves, cCurves))
+  bdry_curves <- vector(mode = "list")
+  bdry_curves[[1]] <- c(length(ac_curves), length(c_curves))
+  bdry_curves <- do.call(c, list(bdry_curves, ac_curves, c_curves))
 
-  return(boundaryCurves)
+  return(bdry_curves)
 }
 
-traceCurve <- function(imgMatrix, i, j, lab) {
-  p0 <- c(i - 0.5, j) # start with North edge
+traceCurve <- function(img_matrix, i, j, lab) {
+  # Start trace from north edge of pixel
+  p0 <- c(i - 0.5, j)
 
   p1 <- c(i, j)
   pc <- c(0, 0)
-  pxLoc <- 1 # N = 1, W = 2, S = 3, E = 4
 
-  curvePts <- matrix(data = p0, nrow = 1, ncol = 2)
+  # Keep track of which edge we are on
+  # * 1 *
+  # 2 * 4
+  # * 3 *
+  px_loc <- 1
 
+  curve_pts <- matrix(data = p0, nrow = 1, ncol = 2)
+
+  # Define directions (mod 8)
+  # 3 2 1
+  # 4 * 0
+  # 5 6 7
   dir <- 7
-  prevDir <- 0
 
   while (any(pc != p1)) {
     nbhd <- matrix(c(
@@ -435,12 +446,13 @@ traceCurve <- function(imgMatrix, i, j, lab) {
 
     for (k in ((dir + 7):(dir + 14) %% 8)) {
       nbr <- FALSE
+      # adjust for R indexing
       x <- nbhd[k + 1, ][1]
       y <- nbhd[k + 1, ][2]
 
-      if (imgMatrix[x, y] == lab && any(c(x, y) != pc)) {
+      if (img_matrix[x, y] == lab && any(c(x, y) != pc)) {
         nbr <- TRUE
-        prev <- switch(pxLoc,
+        prev <- switch(px_loc,
           switch(k + 1,
             rbind(
               c(i, j - 0.5),
@@ -480,7 +492,11 @@ traceCurve <- function(imgMatrix, i, j, lab) {
               c(i, j + 0.5),
               c(x + 0.5, y)
             ),
-            c(x + 0.5, y),
+            rbind(
+              c(i + 0.5, j),
+              c(i, j + 0.5),
+              c(x, j + 0.5)
+            ),
             rbind(
               c(i + 0.5, j),
               c(i, j + 0.5),
@@ -555,8 +571,8 @@ traceCurve <- function(imgMatrix, i, j, lab) {
           )
         )
 
-        curvePts <- unname(rbind(curvePts, prev))
-        pxLoc <- switch(pxLoc,
+        curve_pts <- unname(rbind(curve_pts, prev))
+        px_loc <- switch(px_loc,
           switch(k + 1,
             3,
             3,
@@ -607,8 +623,8 @@ traceCurve <- function(imgMatrix, i, j, lab) {
     }
     if (!nbr) {
       # The region is a single pixel
-      curvePts <- rbind(
-        curvePts,
+      curve_pts <- rbind(
+        curve_pts,
         c(i, j - 0.5),
         c(i + 0.5, j),
         c(i, j + 0.5)
@@ -617,11 +633,11 @@ traceCurve <- function(imgMatrix, i, j, lab) {
     }
   }
 
-  curvePts[, c(1, 2)] <- curvePts[, c(2, 1)]
+  curve_pts[, c(1, 2)] <- curve_pts[, c(2, 1)]
   if (lab > 0) {
-    curvePts[, 1] <- rev(curvePts[, 1])
-    curvePts[, 2] <- rev(curvePts[, 2])
+    curve_pts[, 1] <- rev(curve_pts[, 1])
+    curve_pts[, 2] <- rev(curve_pts[, 2])
   }
 
-  return(curvePts)
+  return(curve_pts)
 }
