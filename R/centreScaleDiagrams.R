@@ -1,6 +1,6 @@
 #' Centre and Scale the Extended Persistence Diagrams of an image.
 #'
-#' Given a collection of persistence diagrams in N evenly spaced directions,
+#' Given a collection of persistence diagrams in $N$ evenly spaced directions,
 #' shift the points in each diagram so that the correspond to the points of the
 #' persistence diagrams of the centred image. Then scale the birth and death
 #' times of each point by some factor.
@@ -10,7 +10,7 @@
 #'
 #' @param diagrams A list of extended persistence diagrams on a single image
 #' computed in N evenly spaced directions.
-#' @param scale_constant A constant to control the scaling of the diagram.
+#' @param scaleConstant A constant to control the scaling of the diagram.
 #' Default is 1. Note this is not the percentage of the original scale of the
 #' image.
 #' @return A list of extended persistence diagrams of the same image, centred
@@ -19,7 +19,7 @@
 #' @export
 centreScaleDiagrams <- function(diagrams,
                                 scale = TRUE,
-                                scale_constant = 1) {
+                                scaleConstant = 1) {
   n_dirs <- length(diagrams)
   lambda <- findMinBirthTimes(
     n_dirs = n_dirs,
@@ -37,7 +37,7 @@ centreScaleDiagrams <- function(diagrams,
       diagrams = adjusted_diagrams,
       n_dirs = n_dirs,
       lambda = lambda,
-      scale_constant = scale_constant
+      scaleConstant = scaleConstant
     )
     print("Diagrams successfully scaled.")
   }
@@ -101,14 +101,14 @@ findCentre <- function(n_dirs, lambda) {
   return(cp)
 }
 
-scaleDiagrams <- function(diagrams, n_dirs, lambda, scale_constant) {
+scaleDiagrams <- function(diagrams, n_dirs, lambda, scaleConstant) {
   scale_denom <- (-1) * sum(lambda)
 
   if (scale_denom <= 0) {
     stop("Incorrect lambda's computed. Cannot scale by a negative value.")
   }
 
-  scale_value <- scale_constant / scale_denom
+  scale_value <- scaleConstant / scale_denom
 
   for (i in 1:n_dirs) {
     diagrams[[i]][["Ext0"]] <- diagrams[[i]][["Ext0"]] * scale_value

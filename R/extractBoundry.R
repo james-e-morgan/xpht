@@ -1,55 +1,48 @@
 #' Extract the boundary curves of a binary image
 #'
-#' Given a binary image (pixel values 0 and 1) extractBoundary will trace all
-#' boundary curves along the midpoints of pixel edges between foreground and
-#' background regions. Curves which bound the outside of a foreground region
-#' are traced in the anticlockwise direction while curves which bound the
-#' inside of a foreground region are traced in the clockwise direction.
+#' Given a binary image (pixel values 0 and 1) \code{extractBoundary}
+#' will trace all boundary curves along the midpoints of pixel edges between
+#' foreground and background regions. Curves which bound the outside of a
+#' foreground region are traced in the anticlockwise direction while curves
+#' which bound the inside of a foreground region are traced in the clockwise
+#' direction. The image is padded to ensure outermost pixels are part of the
+#' background.
 #'
-#' The image is padded with a 1-pixel wide border of background. Each connected
-#' component of the image is labelled as follows:
-#'      - Foreground pixels are labelled with positive integers (1,2,3,...).
-#'      - Background pixels are labelled with negative integers (-1,-2,...).
-#'      - The outermost background region is labelled with -1.
-#'
-#' OUTPUT
-#' ------
-#' The boundary information is stored in the list boundary, structured as
-#' follows:
-#'      - boundary[[1]] is a vector (m,n) containing the number of
-#'        anticlockwise and clockwise curves.
-#'      - boundary[[2]] to boundary[[m+1]] contain the anticlockwise curves.
-#'      - boundary[[m+2]] to boundary[[n+1]] contain the clockwise curves.
-#' If set to save, the list is saved as an RDS file.
-#'
-#' @param img A binary image read in from the imager package.
+#' @param img A binary image of class `cimg' read in using
+#'  [imager::load.image()].
 #' @param background The value of the background, 0 for black and 1 for white.
-#' (Default: 0)
-#' @param save_output If TRUE, will save output to directory specified by
-#' output_dir. (Default: FALSE)
-#' @param output_dir The directory to save the output. If save_output is TRUE and
-#' no directory is specified, saves to working directory. (Default: NULL)
-#' @param f_name The name of the output file saved. If save_output is TRUE and no
-#' filename specified, prompts user for filename. (Default: NULL)
-#' @param verbose If TRUE, prints indictors of progress throughout.
-#' (Default: TRUE)
-#' @return A list containing the the points around each boundary curve of the
-#' image as matrices.
+#'  The default value is \code{1}.
+#' @param saveOutput If TRUE, will save output as a \code{.RDS} file to
+#'  directory specified by outputDir. The default values is `FALSE`.
+#' @param outputDir The directory to save the output. If saveOutput is TRUE
+#'  and no directory is specified, saves to working directory. The default
+#'  is `NULL`.
+#' @param fName The name of the output file saved. If saveOutput is TRUE and
+#'  no filename specified, prompts user for filename. The default value is
+#'  `NULL`.
+#' @param verbose If TRUE, prints indictors of progress throughout. The default
+#'  value is `TRUE`.
+#' @return A list containing the points on the boundary curves structured as:
+#'    * The first entry is a vector \code{(m,n)} containing the number of
+#'      anticlockwise (m) and clockwise (n) curves.
+#'    * Entries \code{2} to \code{m+1}  contain the anticlockwise curves.
+#'    * Entries \code{m+2} to \code{n+1} contain the clockwise curves.
+#' @seealso [multiExtractBoundary()], [imager::load.image()]
 #' @export
 extractBoundary <- function(img,
-                            background = 0,
-                            save_output = FALSE,
-                            output_dir = NULL,
-                            f_name = NULL,
+                            background = 1,
+                            saveOutput = FALSE,
+                            outputDir = NULL,
+                            fName = NULL,
                             verbose = TRUE) {
-  if (save_output) {
-    if (!dir.exists(output_dir)) {
-      output_dir <- getwd()
+  if (saveOutput) {
+    if (!dir.exists(outputDir)) {
+      outputDir <- getwd()
     }
-    if (is.null(f_name)) {
-      f_name <- readline(prompt = "Please provide a filename for save: ")
+    if (is.null(fName)) {
+      fName <- readline(prompt = "Please provide a filename for save: ")
     }
-    out_file <- paste(output_dir, "/", f_name, ".RDS", sep = "")
+    out_file <- paste(outputDir, "/", fName, ".RDS", sep = "")
   }
   # Pad image
   img <- imager::pad(img, nPix = 1, axes = "x", pos = -1, val = background)
@@ -61,14 +54,14 @@ extractBoundary <- function(img,
 
   boundary <- boundaryTrace(img_matrix, verbose)
 
-  if (save_output) {
+  if (saveOutput) {
     saveRDS(boundary, file = out_file)
     if (verbose) {
       cat("Successfully saved ", out_file, "\n", sep = "")
     }
   } else {
     if (verbose) {
-      print("Boundary extraction successful.")
+      cat("Boundary extraction successful.")
     }
     return(boundary)
   }
@@ -76,45 +69,34 @@ extractBoundary <- function(img,
 
 #' Extract the boundary curves of binary images in a given directory
 #'
-#' Runs \code{\link{extractBoundary}} on all images of a specified type in a
+#' Runs [extractBoundary()] on all images of a specified type in a
 #' given directory. Images must be binary (pixel values 0 and 1).
 #'
-#' Output is either returned as a list of lists or saved as individual RDS
-#' files in the specified output directory.
-#'
-#' For more information, see \code{\link{extractBoundary}}.
-#'
-#' @param input_dir The directory containing the images.
-#' @param img_type The image file type for input files, specified without a
-#' "." (Default: "png")
-#' @param background The value of the background, 0 for black and 1 for white.
-#' (Default: 0)
-#' @param save_output If TRUE, will save output to directory specified by
-#' output_dir. (Default: FALSE)
-#' @param output_dir The directory to save the output. If save_output is TRUE and
-#' no directory is specified, saves to working directory. (Default: NULL)
-#' @param verbose If TRUE, prints indictors of progress throughout.
-#' (Default: TRUE)
-#' @return A list for each image containing the points of the boundary curves.
-#' Stored in individual files (if save_output = TRUE) or a list.
+#' @param inputDir The directory containing the images.
+#' @param imgType The image file type for input files, specified without a
+#' ".". The default value is `png`.
+#' @inheritParams extractBoundary
+#' @return A list for each image containing the points of the boundary curves,
+#' structured as in [extractBoundary()].
+#' @seealso [extractBoundary()]
 #' @export
-multiExtractBoundary <- function(input_dir,
-                                 img_type = "png",
-                                 background = 0,
-                                 save_output = FALSE,
-                                 output_dir = NULL,
+multiExtractBoundary <- function(inputDir,
+                                 imgType = "png",
+                                 background = 1,
+                                 saveOutput = FALSE,
+                                 outputDir = NULL,
                                  verbose = TRUE) {
-  f_type <- paste("*.", img_type, sep = "")
+  f_type <- paste("*.", imgType, sep = "")
   files <- list.files(
-    path = input_dir,
+    path = inputDir,
     pattern = f_type,
     full.names = TRUE,
     recursive = FALSE
   )
 
-  if (save_output) {
-    if (!dir.exists(output_dir)) {
-      output_dir <- getwd()
+  if (saveOutput) {
+    if (!dir.exists(outputDir)) {
+      outputDir <- getwd()
     }
   } else {
     boundaries <- vector(mode = "list", length = length(files))
@@ -127,17 +109,17 @@ multiExtractBoundary <- function(input_dir,
 
     img <- imager::load.image(files[[i]])
 
-    if (save_output) {
+    if (saveOutput) {
       f_string <- strsplit(files[[i]], "/", fixed = TRUE)
-      f_name <- strsplit(f_string[[1]][length(f_string[[1]])], ".",
+      fName <- strsplit(f_string[[1]][length(f_string[[1]])], ".",
         fixed = TRUE
       )[[1]][1]
       extractBoundary(
         img = img,
         background = background,
-        save_output = TRUE,
-        output_dir = output_dir,
-        f_name = f_name,
+        saveOutput = TRUE,
+        outputDir = outputDir,
+        fName = fName,
         verbose = verbose
       )
     } else {
@@ -149,8 +131,8 @@ multiExtractBoundary <- function(input_dir,
     }
   }
 
-  if (save_output) {
-    cat("All boundaries successfully saved in:\n", output_dir, sep = "")
+  if (saveOutput) {
+    cat("All boundaries successfully saved in:\n", outputDir, sep = "")
   } else {
     return(boundaries)
   }
@@ -249,8 +231,8 @@ componentLabelling <- function(img,
     }
   }
   if (verbose) {
-    print("Completed first raster for component labelling.
-              Now constructing representative tables.")
+    cat("Completed first raster for component labelling.\n",
+          "Now constructing representative tables.", sep="")
   }
 
   for (i in seq_len(length(labels_fg))) {
@@ -304,7 +286,7 @@ componentLabelling <- function(img,
   }
 
   if (verbose) {
-    print("Representative tables constructed. Now relabelling components.")
+    cat("Representative tables constructed. Now relabelling components.")
   }
 
   for (i in 1:h) {
