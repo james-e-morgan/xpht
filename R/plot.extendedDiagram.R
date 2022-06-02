@@ -1,5 +1,5 @@
 #' @export
-plot.extDiagram <- function(x,
+plot.extendedDiagram <- function(x,
                             barcode = FALSE,
                             col = NULL,
                             showLegend = FALSE,
@@ -8,6 +8,13 @@ plot.extDiagram <- function(x,
   # Add checks for diagram list
   # Add checks for diagram Names
   X <- vector()
+
+  if (!is.null(col)) {
+    if (length(col) != 4) {
+      stop("Must provide four colours for plotting.")
+    }
+  }
+
   for (i in 2:5) {
     if (length(x[[i]]) > 2) {
       sortedx <- x[[i]][order(x[[i]][, 1], decreasing = FALSE), ]
@@ -19,26 +26,10 @@ plot.extDiagram <- function(x,
     }
   }
 
-  if (is.null(col)) {
-    col <- c(
-      rep("#000000", length(which(X[, 1] == 1))),
-      rep("#e69f00", length(which(X[, 1] == 2))),
-      rep("#009e73", length(which(X[, 1] == 3))),
-      rep("#d55e00", length(which(X[, 1] == 4)))
-    )
-  } else if (length(col) == 4) {
-    temp_col <- col
-    col <- c(
-      rep(temp_col[1], length(which(X[, 1] == 1))),
-      rep(temp_col[2], length(which(X[, 1] == 2))),
-      rep(temp_col[3], length(which(X[, 1] == 3))),
-      rep(temp_col[4], length(which(X[, 1] == 4)))
-    )
-  } else {
-    stop("Must provide four colours for plotting.")
-  }
-
   if (barcode) {
+
+    v
+    
     birth <- X[, 2]
     death <- X[, 3]
 
@@ -71,30 +62,35 @@ plot.extDiagram <- function(x,
       lty = rep(1, n),
       col = col
     )
+
   } else {
-    if (rotated == TRUE) {
-      extrema <- c(X[, 2] + X[, 3], X[, 3] - X[, 2])
+    first <- min(X[, 2])
+    last <- max(X[, 3])
+    symbs <- 15:18
+    if (is.null(col)) {
+    col <- c( "#000000", "#e69f00", "#009e73", "#d55e00")
+    }
+    # initialise empty plot
+    graphics::plot(0, 0,
+      type = "n",
+      xlab = "",
+      ylab = "",
+      xlim = c(first, last),
+      ylim = c(first, last),
+      ...
+    )
 
-      first <- min(extrema)
-      last <- max(extrema)
+    for (i in 1:4) {
+      subDgm <- X[X[, 1] == i, ]
 
-      symbs <- 15:18
-      col <- unique(col)
+      if (length(subDgm) > 0) {
+        birth <- subDgm[, 2]
+        death <- subDgm[, 3]
 
-      graphics::plot(0, 0,
-        type = "n",
-        xlab = "",
-        ylab = "",
-        xlim = c(first, last),
-        ylim = c(first, last),
-        ...
-      )
-
-      for (i in 1:4) {
-        subDgm <- X[X[, 1] == i, ]
-        birth <- (subDgm[, 2] + subDgm[, 3])
-        death <- (subDgm[, 3] - subDgm[, 2])
-
+        print(birth)
+        print(death)
+        print(class(birth))
+        print(class(death))
         graphics::points(birth,
           death,
           pch = symbs[i],
@@ -103,13 +99,20 @@ plot.extDiagram <- function(x,
           col = col[i]
         )
       }
+    }
 
-      graphics::title(
-        xlab = "Birth + Death",
-        ylab = "Death - Birth"
-      )
+    graphics::abline(0, 1,
+      lty = 2,
+      col = "#A9A9A9"
+    )
 
-      if (showLegend) {
+    graphics::title(
+      xlab = "birth",
+      ylab = "death"
+    )
+
+    if (showLegend) {
+      if (colNull) {
         graphics::legend(legendPos,
           legend = c("Ord0", "Rel1", "Ext0", "Ext1"),
           pch = symbs,
@@ -120,55 +123,15 @@ plot.extDiagram <- function(x,
             "#d55e00"
           )
         )
-      }
-    } else {
-      first <- min(X[, 2])
-      last <- max(X[, 3])
-      symbs <- 15:18
-      col <- unique(col)
-      # initialise empty plot
-      graphics::plot(0, 0,
-        type = "n",
-        xlab = "",
-        ylab = "",
-        xlim = c(first, last),
-        ylim = c(first, last),
-        ...
-      )
-
-      for (i in 1:4) {
-        subDgm <- X[X[, 1] == i, ]
-        birth <- subDgm[, 2]
-        death <- subDgm[, 3]
-
-        graphics::points(birth,
-          death,
-          pch = symbs[i],
-          lwd = 2,
-          cex = 1,
-          col = col[i]
-        )
-      }
-
-      graphics::abline(0, 1,
-        lty = 2,
-        col = "#A9A9A9"
-      )
-
-      graphics::title(
-        xlab = "birth",
-        ylab = "death"
-      )
-
-      if (showLegend) {
+      } else {
         graphics::legend(legendPos,
           legend = c("Ord0", "Rel1", "Ext0", "Ext1"),
           pch = symbs,
           col = c(
-            "#000000",
-            "#e69f00",
-            "#009e73",
-            "#d55e00"
+            temp_col[1],
+            temp_col[2],
+            temp_col[3],
+            temp_col[4]
           )
         )
       }

@@ -262,10 +262,10 @@ componentLabelling <- function(img,
   rep_table_fg <- vector()
   rep_table_bg <- vector()
 
-  for (i in 1:length(labels_fg)) {
+  for (i in seq_len(length(labels_fg))) {
     rep_table_fg <- append(rep_table_fg, min(labels_fg[[i]]))
   }
-  for (i in 1:length(labels_bg)) {
+  for (i in seq_len(length(labels_bg))) {
     rep_table_bg <- append(rep_table_bg, max(labels_bg[[i]]))
   }
 

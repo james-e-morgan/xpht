@@ -122,7 +122,7 @@ extendedPersistence <- function(bdryCurves,
     x_diagram[[d]] <- neg_diagram
   }
 
-  class(x_diagram) <- "extendedDiagram"
+  class(x_diagram) <- "extendedPHT"
 
   if (saveOutput) {
     saveRDS(x_diagram, file = out_file)
