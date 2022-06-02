@@ -26,10 +26,25 @@ plot.extendedDiagram <- function(x,
     }
   }
 
-  if (barcode) {
+    if (is.null(col)) {
+      col <- c(
+        rep("#000000", length(which(X[, 1] == 1))),
+        rep("#e69f00", length(which(X[, 1] == 2))),
+        rep("#009e73", length(which(X[, 1] == 3))),
+        rep("#d55e00", length(which(X[, 1] == 4)))
+      )
+    } else if (length(col) == 4) {
+      temp_col <- col
+      col <- c(
+        rep(temp_col[1], length(which(X[, 1] == 1))),
+        rep(temp_col[2], length(which(X[, 1] == 2))),
+        rep(temp_col[3], length(which(X[, 1] == 3))),
+        rep(temp_col[4], length(which(X[, 1] == 4)))
+      )
+    } else {
+      stop("Must provide four colours for plotting.")
+    }
 
-    v
-    
     birth <- X[, 2]
     death <- X[, 3]
 
