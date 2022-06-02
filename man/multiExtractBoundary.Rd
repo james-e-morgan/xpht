@@ -7,7 +7,7 @@
 multiExtractBoundary(
   inputDir,
   imgType = "png",
-  background = 0,
+  background = 1,
   saveOutput = FALSE,
   outputDir = NULL,
   verbose = TRUE
@@ -17,7 +17,7 @@ multiExtractBoundary(
 \item{inputDir}{The directory containing the images.}
 
 \item{imgType}{The image file type for input files, specified without a
-".". The default value is \code{png}.}
+".". The default value is \verb{pn g}.}
 
 \item{background}{The value of the background, 0 for black and 1 for white.
 The default value is \code{1}.}
@@ -33,11 +33,13 @@ is \code{NULL}.}
 value is \code{TRUE}.}
 }
 \value{
-A list for each image containing the points of the boundary curves.
-Stored in individual files (if saveOutput = TRUE) or a list.
+A list for each image containing the points of the boundary curves,
+structured as in \code{\link[=extractBoundary]{extractBoundary()}}.
 }
 \description{
 Runs \code{\link[=extractBoundary]{extractBoundary()}} on all images of a specified type in a
-given directory. Images must be binary (pixel values 0 and 1). For more
-information, see \code{\link[=extractBoundary]{extractBoundary()}}
+given directory. Images must be binary (pixel values 0 and 1).
+}
+\seealso{
+\code{\link[=extractBoundary]{extractBoundary()}}
 }

@@ -3,7 +3,7 @@
 S3method(plot,extDiagram)
 export(centreScaleDiagrams)
 export(computeDistanceMatrix)
-export(computeExtendedPersistence)
+export(extendedPersistence)
 export(extractBoundary)
 export(multiExtendedPersistence)
 export(multiExtractBoundary)

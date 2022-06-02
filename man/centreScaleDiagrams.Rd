@@ -4,28 +4,27 @@
 \alias{centreScaleDiagrams}
 \title{Centre and Scale the Extended Persistence Diagrams of an image.}
 \usage{
-centreScaleDiagrams(diagrams, scale = TRUE, scale_constant = 1)
+centreScaleDiagrams(diagrams, scale = TRUE, scaleConstant = 1)
 }
 \arguments{
 \item{diagrams}{A list of extended persistence diagrams on a single image
-computed in N evenly spaced directions.}
+computed in \eqn{N} evenly spaced directions.}
 
-\item{scale_constant}{A constant to control the scaling of the diagram.
-Default is 1. Note this is not the percentage of the original scale of the
-image.}
+\item{scale}{Flag to indicate whether diagrams are to be scaled or not. The
+default value is \code{TRUE}.}
+
+\item{scaleConstant}{\code{numeric} constant to control the scaling of the
+diagram. This is \emph{not} the percentage of the original scale of the image.
+The default value is 1.}
 }
 \value{
-A list of extended persistence diagrams of the same image, centred
-at the origin and scaled by an amount proportional to the sum of the
+A list of extended persistence diagrams centred at the origin and
+with birth and death times scaled by an amount proportional to the sum of the
 minimum birth times.
 }
 \description{
-Given a collection of persistence diagrams in N evenly spaced directions,
-shift the points in each diagram so that the correspond to the points of the
-persistence diagrams of the centred image. Then scale the birth and death
-times of each point by some factor.
-}
-\details{
-Centring and scaling the persistence diagrams allows for a more accurate
-comparison of their shapes.
+Given a collection of persistence diagrams in \eqn{N} evenly spaced
+directions, shift the points in each diagram so that the correspond to the
+points of the persistence diagrams of the centred image. Then scale the
+birth and death times of each point by some factor.
 }

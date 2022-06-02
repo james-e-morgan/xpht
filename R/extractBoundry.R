@@ -36,7 +36,9 @@ extractBoundary <- function(img,
                             fName = NULL,
                             verbose = TRUE) {
   if (saveOutput) {
-    if (!dir.exists(outputDir)) {
+    if (is.null(outputDir)) {
+      outputDir <- getwd()
+    } else if (!dir.exists(outputDir)) {
       outputDir <- getwd()
     }
     if (is.null(fName)) {
@@ -61,7 +63,7 @@ extractBoundary <- function(img,
     }
   } else {
     if (verbose) {
-      cat("Boundary extraction successful.")
+      cat("Boundary extraction successful.\n")
     }
     return(boundary)
   }
@@ -74,7 +76,7 @@ extractBoundary <- function(img,
 #'
 #' @param inputDir The directory containing the images.
 #' @param imgType The image file type for input files, specified without a
-#' ".". The default value is `png`.
+#' ".". The default value is `pn g`.
 #' @inheritParams extractBoundary
 #' @return A list for each image containing the points of the boundary curves,
 #' structured as in [extractBoundary()].
@@ -95,7 +97,9 @@ multiExtractBoundary <- function(inputDir,
   )
 
   if (saveOutput) {
-    if (!dir.exists(outputDir)) {
+    if (is.null(outputDir)) {
+      outputDIr <- getwd()
+    } else if (!dir.exists(outputDir)) {
       outputDir <- getwd()
     }
   } else {
@@ -104,7 +108,7 @@ multiExtractBoundary <- function(inputDir,
 
   for (i in seq_along(files)) {
     if (verbose) {
-      cat("Commencing", files[[i]], "\n", sep = " ")
+      cat("### Commencing", files[[i]], "\n", sep = " ")
     }
 
     img <- imager::load.image(files[[i]])
@@ -132,7 +136,8 @@ multiExtractBoundary <- function(inputDir,
   }
 
   if (saveOutput) {
-    cat("All boundaries successfully saved in:\n", outputDir, sep = "")
+    cat("All boundaries successfully saved in:\n",
+        outputDir, "\n", sep = "")
   } else {
     return(boundaries)
   }
@@ -232,7 +237,7 @@ componentLabelling <- function(img,
   }
   if (verbose) {
     cat("Completed first raster for component labelling.\n",
-          "Now constructing representative tables.", sep="")
+        "Now constructing representative tables.\n", sep = "")
   }
 
   for (i in seq_len(length(labels_fg))) {
@@ -286,7 +291,7 @@ componentLabelling <- function(img,
   }
 
   if (verbose) {
-    cat("Representative tables constructed. Now relabelling components.")
+    cat("Representative tables constructed. Now relabelling components.\n")
   }
 
   for (i in 1:h) {
@@ -619,7 +624,7 @@ traceCurve <- function(img_matrix, i, j, lab) {
   if (lab > 0) {
     curve_pts[, 1] <- rev(curve_pts[, 1])
     curve_pts[, 2] <- rev(curve_pts[, 2])
-  }
-
+  } 
+  
   return(curve_pts)
 }

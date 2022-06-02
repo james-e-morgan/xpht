@@ -1,8 +1,6 @@
 #' @export
 plot.extDiagram <- function(x,
                             barcode = FALSE,
-                            rotated = FALSE,
-                            histogram = FALSE,
                             col = NULL,
                             showLegend = FALSE,
                             legendPos = NULL,
@@ -28,6 +26,16 @@ plot.extDiagram <- function(x,
       rep("#009e73", length(which(X[, 1] == 3))),
       rep("#d55e00", length(which(X[, 1] == 4)))
     )
+  } else if (length(col) == 4) {
+    temp_col <- col
+    col <- c(
+      rep(temp_col[1], length(which(X[, 1] == 1))),
+      rep(temp_col[2], length(which(X[, 1] == 2))),
+      rep(temp_col[3], length(which(X[, 1] == 3))),
+      rep(temp_col[4], length(which(X[, 1] == 4)))
+    )
+  } else {
+    stop("Must provide four colours for plotting.")
   }
 
   if (barcode) {

@@ -6,7 +6,7 @@
 \usage{
 extractBoundary(
   img,
-  background = 0,
+  background = 1,
   saveOutput = FALSE,
   outputDir = NULL,
   fName = NULL,

@@ -1,20 +1,19 @@
 #' Centre and Scale the Extended Persistence Diagrams of an image.
 #'
-#' Given a collection of persistence diagrams in $N$ evenly spaced directions,
-#' shift the points in each diagram so that the correspond to the points of the
-#' persistence diagrams of the centred image. Then scale the birth and death
-#' times of each point by some factor.
-#'
-#' Centring and scaling the persistence diagrams allows for a more accurate
-#' comparison of their shapes.
+#' Given a collection of persistence diagrams in \eqn{N} evenly spaced
+#' directions, shift the points in each diagram so that the correspond to the
+#' points of the persistence diagrams of the centred image. Then scale the
+#' birth and death times of each point by some factor.
 #'
 #' @param diagrams A list of extended persistence diagrams on a single image
-#' computed in N evenly spaced directions.
-#' @param scaleConstant A constant to control the scaling of the diagram.
-#' Default is 1. Note this is not the percentage of the original scale of the
-#' image.
-#' @return A list of extended persistence diagrams of the same image, centred
-#' at the origin and scaled by an amount proportional to the sum of the
+#' computed in \eqn{N} evenly spaced directions.
+#' @param scale Flag to indicate whether diagrams are to be scaled or not. The
+#'  default value is `TRUE`.
+#' @param scaleConstant `numeric` constant to control the scaling of the
+#'  diagram. This is *not* the percentage of the original scale of the image.
+#'  The default value is 1.
+#' @return A list of extended persistence diagrams centred at the origin and
+#' with birth and death times scaled by an amount proportional to the sum of the
 #' minimum birth times.
 #' @export
 centreScaleDiagrams <- function(diagrams,
