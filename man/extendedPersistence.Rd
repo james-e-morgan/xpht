@@ -2,7 +2,7 @@
 % Please edit documentation in R/extendedPersistence.R
 \name{extendedPersistence}
 \alias{extendedPersistence}
-\title{Compute the Extended Persistence Diagrams of a given image}
+\title{Extended Persistent Homology Transform}
 \usage{
 extendedPersistence(
   bdryCurves,
@@ -65,7 +65,18 @@ containing the relevant part of the extended persistence diagram. The i-th
 entry corresponds to the i-th direction.
 }
 \description{
+The function \code{\link[=extendedPersistence]{extendedPersistence()}} computes the extended persistent
+extended persistent homology transform of the boundary curves of a two
+dimensional shape in a given number of directions.
+}
+\details{
 Given a disjoint collection of simple closed curves representing the
 boundaries of a two dimensional shape, compute the extended
 persistent homology transform of the shape in a given number of directions.
+We assume the points on each boundary curves are ordered and construct the
+one skeleton by adding an edge between each pair of consecutive vertices.
+This skeleton is used to compute the height filtration in a given direction
+and determine the lower neighbours of each vertex. The regular persistent
+homology of each curve is then computed by the union find algorithm and used
+to contruct the extended persistent homology.
 }

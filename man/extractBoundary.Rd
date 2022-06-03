@@ -44,6 +44,10 @@ anticlockwise (m) and clockwise (n) curves.
 }
 }
 \description{
+The function \code{\link[=extractBoundary]{extractBoundary()}} extracts and stores each boundary curve
+of a binary image.
+}
+\details{
 Given a binary image (pixel values 0 and 1) \code{extractBoundary}
 will trace all boundary curves along the midpoints of pixel edges between
 foreground and background regions. Curves which bound the outside of a

@@ -1,12 +1,15 @@
 #' Extract the boundary curves of a binary image
 #'
+#' The function [extractBoundary()] extracts and stores each boundary curve
+#'  of a binary image.
+#'
 #' Given a binary image (pixel values 0 and 1) \code{extractBoundary}
-#' will trace all boundary curves along the midpoints of pixel edges between
-#' foreground and background regions. Curves which bound the outside of a
-#' foreground region are traced in the anticlockwise direction while curves
-#' which bound the inside of a foreground region are traced in the clockwise
-#' direction. The image is padded to ensure outermost pixels are part of the
-#' background.
+#'  will trace all boundary curves along the midpoints of pixel edges between
+#'  foreground and background regions. Curves which bound the outside of a
+#'  foreground region are traced in the anticlockwise direction while curves
+#'  which bound the inside of a foreground region are traced in the clockwise
+#'  direction. The image is padded to ensure outermost pixels are part of the
+#'  background.
 #'
 #' @param img A binary image of class `cimg' read in using
 #'  [imager::load.image()].

@@ -1,18 +1,46 @@
+#' Plot an Extended Persistence Diagram or Barcode
+#'
+#' The function [plot.extendedDiagram()] plots the extended persistence diagram
+#'  or extended persistence barcode of an `extendedDiagram` object.
+#'
+#' This is a generic function. Plot the the extended persistence diagram or the
+#'  extended persistence barcode of an object. If the diagram is plotted, then
+#'  the diagonal \eqn{birth = death} is also plotted. The classes in Ord0 and
+#'  Ext0 have \eqn{birth < death}  and are plotted above the diagonal, whereas
+#'  classes in Rel1 and Ext1 have \eqn{birth > death} and are plotted below the
+#'  diagonal. If the barcode is plotted then classes will be stacked in the
+#'  order Ord0, Rel1, Ext0, Ext1.
+#'
+#' @param x `extendedDiagram` object to plot.
+#' @param barcode If `TRUE`, then barcode is plotted. Default value is `FALSE`.
+#' @param col `vector` containing the four colours to use in plotting in the
+#'  order Ord0, Rel1, Ext0, Ext1. The default value is
+#'    * "#000000" for Ord0
+#'    * "#e69f00" for Rel1
+#'    * "#009e73" for Ext0
+#'    * "#d55e00" for Ext1
+#' @param pch Symbols to use if plotting extended persistence diagram in order
+#'  Ord0, Rel1, Ext0, Ext1. The default value is `15:18`.
+#' @param lab.line Control distance of axis labels to axes. The default value is
+#'  2.2.
+#' @inheritParams graphics::plot
 #' @export
 plot.extendedDiagram <- function(x,
                             barcode = FALSE,
-                            col = NULL,
-                            showLegend = FALSE,
-                            legendPos = NULL,
+                            col = c( "#000000",
+                                     "#e69f00",
+                                     "#009e73",
+                                     "#d55e00"),
+                            pch = 15:18,
+                            lwd = 2,
+                            cex = 1,
                             lab.line = 2.2, ...) {
   # Add checks for diagram list
   # Add checks for diagram Names
   X <- vector()
 
-  if (!is.null(col)) {
-    if (length(col) != 4) {
-      stop("Must provide four colours for plotting.")
-    }
+  if (length(col) != 4) {
+    stop("Must provide four colours for plotting.")
   }
 
   for (i in 2:5) {
@@ -26,24 +54,14 @@ plot.extendedDiagram <- function(x,
     }
   }
 
-    if (is.null(col)) {
-      col <- c(
-        rep("#000000", length(which(X[, 1] == 1))),
-        rep("#e69f00", length(which(X[, 1] == 2))),
-        rep("#009e73", length(which(X[, 1] == 3))),
-        rep("#d55e00", length(which(X[, 1] == 4)))
-      )
-    } else if (length(col) == 4) {
-      temp_col <- col
-      col <- c(
-        rep(temp_col[1], length(which(X[, 1] == 1))),
-        rep(temp_col[2], length(which(X[, 1] == 2))),
-        rep(temp_col[3], length(which(X[, 1] == 3))),
-        rep(temp_col[4], length(which(X[, 1] == 4)))
-      )
-    } else {
-      stop("Must provide four colours for plotting.")
-    }
+  if (barcode) {
+    temp_col <- col
+    col <- c(
+      rep(temp_col[1], length(which(X[, 1] == 1))),
+      rep(temp_col[2], length(which(X[, 1] == 2))),
+      rep(temp_col[3], length(which(X[, 1] == 3))),
+      rep(temp_col[4], length(which(X[, 1] == 4)))
+    )
 
     birth <- X[, 2]
     death <- X[, 3]
@@ -73,18 +91,16 @@ plot.extendedDiagram <- function(x,
 
     graphics::segments(birth, 1:n,
       death, 1:n,
-      lwd = rep(2, n),
+      lwd = rep(lwd, n),
       lty = rep(1, n),
       col = col
     )
 
   } else {
+
     first <- min(X[, 2])
     last <- max(X[, 3])
-    symbs <- 15:18
-    if (is.null(col)) {
-    col <- c( "#000000", "#e69f00", "#009e73", "#d55e00")
-    }
+
     # initialise empty plot
     graphics::plot(0, 0,
       type = "n",
@@ -97,20 +113,19 @@ plot.extendedDiagram <- function(x,
 
     for (i in 1:4) {
       subDgm <- X[X[, 1] == i, ]
+      if (length(subDgm) == 3) {
+        subDgm <- matrix(subDgm, nrow = 1, ncol = 3)
+      }
 
       if (length(subDgm) > 0) {
         birth <- subDgm[, 2]
         death <- subDgm[, 3]
 
-        print(birth)
-        print(death)
-        print(class(birth))
-        print(class(death))
         graphics::points(birth,
           death,
-          pch = symbs[i],
+          pch = pch[i],
           lwd = 2,
-          cex = 1,
+          cex = cex,
           col = col[i]
         )
       }
@@ -123,33 +138,13 @@ plot.extendedDiagram <- function(x,
 
     graphics::title(
       xlab = "birth",
-      ylab = "death"
+      ylab = "death",
+      line = lab.line
     )
-
-    if (showLegend) {
-      if (colNull) {
-        graphics::legend(legendPos,
-          legend = c("Ord0", "Rel1", "Ext0", "Ext1"),
-          pch = symbs,
-          col = c(
-            "#000000",
-            "#e69f00",
-            "#009e73",
-            "#d55e00"
-          )
-        )
-      } else {
-        graphics::legend(legendPos,
-          legend = c("Ord0", "Rel1", "Ext0", "Ext1"),
-          pch = symbs,
-          col = c(
-            temp_col[1],
-            temp_col[2],
-            temp_col[3],
-            temp_col[4]
-          )
-        )
-      }
-    }
   }
+}
+
+#' @export
+getDefaultColours <- function() {
+  return(c( "#000000", "#e69f00", "#009e73", "#d55e00"))
 }

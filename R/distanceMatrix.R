@@ -1,5 +1,7 @@
-#' Compute the q-Wasserstein Distance between the extended persistent homology
-#'  transform of multiple objects.
+#' Compute the distance matrix between Extended Persistent Homology Transforms
+#'
+#' The function [computeDistanceMatrix()] computes the q-Wasserstein distance
+#'  between the extended persistent homology transforms of multiple images.
 #'
 #' Given a collection of objects \eqn{O_1,\dots,O_n} and directions
 #'  \eqn{v_1,\dots,v_K}, compute the distance matrix \eqn{D}$ between all pairs

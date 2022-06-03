@@ -1,8 +1,18 @@
-#' Compute the Extended Persistence Diagrams of a given image
+#' Extended Persistent Homology Transform
+#'
+#' The function [extendedPersistence()] computes the extended persistent
+#'  extended persistent homology transform of the boundary curves of a two
+#'  dimensional shape in a given number of directions.
 #'
 #' Given a disjoint collection of simple closed curves representing the
-#' boundaries of a two dimensional shape, compute the extended
-#' persistent homology transform of the shape in a given number of directions.
+#'  boundaries of a two dimensional shape, compute the extended
+#'  persistent homology transform of the shape in a given number of directions.
+#'  We assume the points on each boundary curves are ordered and construct the
+#'  one skeleton by adding an edge between each pair of consecutive vertices.
+#'  This skeleton is used to compute the height filtration in a given direction
+#'  and determine the lower neighbours of each vertex. The regular persistent
+#'  homology of each curve is then computed by the union find algorithm and used
+#'  to contruct the extended persistent homology.
 #'
 #' @param bdryCurves A list containing points along the boundary curves of the
 #'  image. The list must be structured as
@@ -335,10 +345,14 @@ computeDiagram <- function(filtration, direction, tolerance, collinearTol) {
     length = length(filtration[["height"]])
   )
 
-  diagram[["extended"]] <- c(
-    head(sorted_heights, 1),
-    tail(sorted_heights, 1)
-  )
+  if (abs(max(sorted_heights) - min(sorted_heights)) > tolerance) {
+    print("Extended class")
+    print(abs(max(sorted_heights) - min(sorted_heights)))
+    diagram[["extended"]] <- c(
+      head(sorted_heights, 1),
+      tail(sorted_heights, 1)
+    )
+  }
 
   for (h in sorted_heights) {
     h_vertices <- which(filtration[["height"]] == h)
@@ -460,38 +474,40 @@ computeDiagram <- function(filtration, direction, tolerance, collinearTol) {
       }
     }
   }
-  birth_point <- unique(sapply(
-    unique(parents),
-    function(x) findParent(x, parents)
-  ))
+  if (length(diagram[["extended"]]) == 2) {
+    birth_point <- unique(sapply(
+      unique(parents),
+      function(x) findParent(x, parents)
+    ))
 
-  if (length(birth_point) > 1) {
-    stop("Simple closed curve has more than one essential class.")
+    if (length(birth_point) > 1) {
+      stop("Simple closed curve has more than one essential class.")
+    }
+
+    # Check if vertex x is minimal
+    x <- birth_point[1]
+    idxs <- (c(x - 2, x - 1, x) %% n_vertices) + 1
+    vertices <- matrix(
+      c(filtration[["coords"]][idxs[1], ],
+        filtration[["coords"]][idxs[2], ],
+        filtration[["coords"]][idxs[3], ]),
+      nrow = 3,
+      ncol = 2,
+      byrow = TRUE
+    )
+    heights <- c(
+      filtration[["height"]][idxs[1]],
+      filtration[["height"]][idxs[2]],
+      filtration[["height"]][idxs[3]]
+    )
+
+    diagram[["extended_minimal"]] <- testMinimality(
+      vertices = vertices,
+      heights = heights,
+      direction = direction,
+      collinearTol = collinearTol
+    )
   }
-
-  # Check if vertex x is minimal
-  x <- birth_point[1]
-  idxs <- (c(x - 2, x - 1, x) %% n_vertices) + 1
-  vertices <- matrix(
-    c(filtration[["coords"]][idxs[1], ],
-      filtration[["coords"]][idxs[2], ],
-      filtration[["coords"]][idxs[3], ]),
-    nrow = 3,
-    ncol = 2,
-    byrow = TRUE
-  )
-  heights <- c(
-    filtration[["height"]][idxs[1]],
-    filtration[["height"]][idxs[2]],
-    filtration[["height"]][idxs[3]]
-  )
-
-  diagram[["extended_minimal"]] <- testMinimality(
-    vertices = vertices,
-    heights = heights,
-    direction = direction,
-    collinearTol = collinearTol
-  )
 
   return(diagram)
 }
@@ -539,16 +555,18 @@ computeExtendedDiagram <- function(persistence_diagram,
       }
     }
 
-    if (diagram[["extended_minimal"]]) {
-      ext_0 <- rbind(
-        ext_0,
-        diagram[["extended"]]
-      )
-    } else {
-      ext_1 <- rbind(
-        ext_1,
-        rev(diagram[["extended"]])
-      )
+    if (length(diagram[["extended"]]) > 0) {
+      if (diagram[["extended_minimal"]]) {
+        ext_0 <- rbind(
+          ext_0,
+          diagram[["extended"]]
+        )
+      } else {
+        ext_1 <- rbind(
+          ext_1,
+          rev(diagram[["extended"]])
+        )
+      }
     }
   }
   ex_diagram[["Ord0"]] <- ord_0

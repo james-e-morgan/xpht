@@ -1,9 +1,14 @@
-#' Centre and Scale the Extended Persistence Diagrams of an image.
+#' Centre and Scale Extended Persistence Diagrams
+#'
+#' The function [centreScaleDiagrams()] translates the points in an extended
+#'  persistence diagram to be centred about the origin and scales the points
+#'  to make different diagrams comparable.
 #'
 #' Given a collection of persistence diagrams in \eqn{N} evenly spaced
-#' directions, shift the points in each diagram so that the correspond to the
-#' points of the persistence diagrams of the centred image. Then scale the
-#' birth and death times of each point by some factor.
+#'  directions, shift the points in each diagram so that they correspond to the
+#'  points of the persistence diagrams of the centred image. This is equivalent
+#'  to centring the convex hull of the original image. Then scale the
+#'  birth and death times of each point by some factor.
 #'
 #' @param diagrams A list of extended persistence diagrams on a single image
 #' computed in \eqn{N} evenly spaced directions.
