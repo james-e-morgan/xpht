@@ -34,11 +34,12 @@
 #'  determining if three points are collinear. This is used when determining
 #'  whether a vertex on a curve is a local minimum. The default value is `1e-8`.
 #' @inheritParams extractBoundary
-#' @return A list of length 5 with names *"Name"*, *"Ord0"*, *"Rel1"*, *"Ext0"*,
+#' @return A list of length `nDirections` where the *i*-th entry is the extended
+#'  persistence diagram in the *i*-th direction. Each diagram is a list of
+#'  length five with names *"Name"*, *"Ord0"*, *"Rel1"*, *"Ext0"*,
 #'  *"Ext1"*. The entry for `Name` is a string identifying the object and the
-#'  direction used for the height filtration. The remaining entries are lists
-#'  containing the relevant part of the extended persistence diagram. The i-th
-#'  entry corresponds to the i-th direction.
+#'  direction used for the height filtration. The remaining entries are
+#'  (possibly empty) matrices containing the points on the relevant diagram.
 #' @export
 extendedPersistence <- function(bdryCurves,
                                 imgName,
