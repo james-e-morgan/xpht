@@ -16,22 +16,28 @@ multiExtractBoundary(
 \arguments{
 \item{inputDir}{The directory containing the images.}
 
-\item{imgType}{The image file type for input files, specified without a "." (Default: "png")}
+\item{imgType}{The image file type for input files, specified without a
+"." (Default: "png")}
 
-\item{background}{The value of the background, 0 for black and 1 for white. (Default: 0)}
+\item{background}{The value of the background, 0 for black and 1 for white.
+(Default: 0)}
 
-\item{saveOutput}{If TRUE, will save output to directory specified by outputDir. (Default: FALSE)}
+\item{saveOutput}{If TRUE, will save output to directory specified by
+outputDir. (Default: FALSE)}
 
-\item{outputDir}{The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)}
+\item{outputDir}{The directory to save the output. If saveOutput is TRUE and
+no directory is specified, saves to working directory. (Default: NULL)}
 
-\item{verbose}{If TRUE, prints indictors of progress throughout. (Default: TRUE)}
+\item{verbose}{If TRUE, prints indictors of progress throughout.
+(Default: TRUE)}
 }
 \value{
-A list for each image containing the points of the boundary curves. Stored in individual files (if saveOutput = TRUE) or a list.
+A list for each image containing the points of the boundary curves.
+Stored in individual files (if saveOutput = TRUE) or a list.
 }
 \description{
-Runs \code{\link{extractBoundary}} on all images of a specified type in a given directory.
-Images must be binary (pixel values 0 and 1).
+Runs \code{\link{extractBoundary}} on all images of a specified type in a
+given directory. Images must be binary (pixel values 0 and 1).
 }
 \details{
 Output is either returned as a list of lists or saved as individual RDS

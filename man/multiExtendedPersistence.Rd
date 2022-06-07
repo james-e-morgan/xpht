@@ -15,20 +15,25 @@ multiExtendedPersistence(
 \arguments{
 \item{inputDir}{The directory containing the extracted boundary curves.}
 
-\item{outputDir}{The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)}
+\item{outputDir}{The directory to save the output. If saveOutput is TRUE
+and no directory is specified, saves to working directory. (Default: NULL)}
 
-\item{nDirections}{An integer giving the number of directions to use. This must be positive and even.}
+\item{nDirections}{An integer giving the number of directions to use. This
+must be positive and even.}
 
-\item{tolerance}{Parameter to control the noise from the image. Any vertices closer than this in a particular
-direction will be classified as noise and ignored. (Default: 1/sqrt(2))}
+\item{tolerance}{Parameter to control the noise from the image. Any vertices
+closer than this in a particular direction will be classified as noise and
+ignored. (Default: 1/sqrt(2))}
 
-\item{verbose}{If TRUE, prints indictors of progress throughout. (Default: TRUE)}
+\item{verbose}{If TRUE, prints indictors of progress throughout.
+(Default: TRUE)}
 }
 \description{
 Runs \code{\link{extractBoundary}} on all .RDS files in a given directory.
 }
 \details{
-Each persistence diagram is \emph{saved} in in the specified output directory.
+Each persistence diagram is \emph{saved} in in the specified
+output directory.
 
 For more information, see \code{\link{extractBoundary}}.
 }

@@ -16,35 +16,44 @@ extractBoundary(
 \arguments{
 \item{img}{A binary image read in from the imager package.}
 
-\item{background}{The value of the background, 0 for black and 1 for white. (Default: 0)}
+\item{background}{The value of the background, 0 for black and 1 for white.
+(Default: 0)}
 
-\item{saveOutput}{If TRUE, will save output to directory specified by outputDir. (Default: FALSE)}
+\item{saveOutput}{If TRUE, will save output to directory specified by
+outputDir. (Default: FALSE)}
 
-\item{outputDir}{The directory to save the output. If saveOutput is TRUE and no directory is specified, saves to working directory. (Default: NULL)}
+\item{outputDir}{The directory to save the output. If saveOutput is TRUE and
+no directory is specified, saves to working directory. (Default: NULL)}
 
-\item{fName}{The name of the output file saved. If saveOutput is TRUE and no filename specified, prompts user for filename. (Default: NULL)}
+\item{fName}{The name of the output file saved. If saveOutput is TRUE and no
+filename specified, prompts user for filename. (Default: NULL)}
 
-\item{verbose}{If TRUE, prints indictors of progress throughout. (Default: TRUE)}
+\item{verbose}{If TRUE, prints indictors of progress throughout.
+(Default: TRUE)}
 }
 \value{
-A list containing the the points around each boundary curve of the image as matrices.
+A list containing the the points around each boundary curve of the
+image as matrices.
 }
 \description{
-Given a binary image (pixel values 0 and 1) extractBoundary will trace all boundary curves along the
-midpoints of pixel edges between foreground and background regions. Curves which bound the outside
-of a foreground region are traced in the anticlockwise direction while curves which bound the inside
-of a foreground region are traced in the clockwise direction.
+Given a binary image (pixel values 0 and 1) extractBoundary will trace all
+boundary curves along the midpoints of pixel edges between foreground and
+background regions. Curves which bound the outside of a foreground region
+are traced in the anticlockwise direction while curves which bound the
+inside of a foreground region are traced in the clockwise direction.
 }
 \details{
-The image is padded with a 1-pixel wide border of background. Each connected component of the image
-is labelled as follows:
-- Foreground pixels are labelled with positive integers (1,2,3,...)
-- Background pixels are labelled with negative integers (-1,-2,...)
+The image is padded with a 1-pixel wide border of background. Each connected
+component of the image is labelled as follows:
+- Foreground pixels are labelled with positive integers (1,2,3,...).
+- Background pixels are labelled with negative integers (-1,-2,...).
 - The outermost background region is labelled with -1.
 \subsection{OUTPUT}{
 
-The boundary information is stored in the list boundary, structured as follows
-- boundary[\link{1}] is a vector (m,n) containing the number of anticlockwise and clockwise curves.
+The boundary information is stored in the list boundary, structured as
+follows:
+- boundary[\link{1}] is a vector (m,n) containing the number of
+anticlockwise and clockwise curves.
 - boundary[\link{2}] to boundary[\link{m+1}] contain the anticlockwise curves.
 - boundary[\link{m+2}] to boundary[\link{n+1}] contain the clockwise curves.
 If set to save, the list is saved as an RDS file.
