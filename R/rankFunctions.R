@@ -111,7 +111,37 @@ discretisedRank <- function(diagram, xcoords,ycoords, name){
 #'
 #' @export
 
-#discretisedRankAll <- function(diagram, xcoords,ycoords{
-#  rks #DO WHAT EVER YOU THINK PADAWAN
-#  return(rks)
-#}
+discretisedRankAll <- function(diagram, xcoords,ycoords) {
+  rks <- c()
+  for (name in c('Ord0', 'Ext0', 'Rel1', 'Ext1')) {
+    rk <- discretisedRank(diagram, xcoords, ycoords, name)
+    rks <- append(rks, rk)
+  }
+  return(rks)
+}
+
+#' displayRanks
+#' 
+#' Use a heatmap to display a the rank functions of a diagram.
+#' 
+#' @param diagram A persistence diagam
+#' @param xcoords A list of x-coordinates
+#' @param ycoords A list of y-coordinates
+#' @return displays a heat map of the rank functions
+#' 
+#' @export 
+#' 
+
+displayRanks <- function(ranks, xcoords, ycoords) {
+  rk_Ord0 <- ranks[[1]]
+  rk_Ext0 <- ranks[[2]]
+  rk_Rel1 <- ranks[[3]]
+  rk_Ext1 <- ranks[[4]]
+
+  heatmap_Ord0 <- Heatmap(rk_Ord0, name = "Ord0")
+  heatmap_Ext0 <- Heatmap(rk_Ext0, name = "Ext0")
+  heatmap_Rel1 <- Heatmap(rk_REl1, name = "Rel1")
+  heatmap_Ext1 <- Heatmap(rk_Ext1, name = "Ext1")
+
+  heatmap_Ord0 + heatmap_Ext0 + heatmap_Rel1 + heatmap_Ext1
+}
