@@ -138,10 +138,10 @@ displayRanks <- function(ranks, xcoords, ycoords) {
   rk_Rel1 <- ranks[[3]]
   rk_Ext1 <- ranks[[4]]
 
-  heatmap_Ord0 <- Heatmap(rk_Ord0, name = "Ord0")
-  heatmap_Ext0 <- Heatmap(rk_Ext0, name = "Ext0")
-  heatmap_Rel1 <- Heatmap(rk_REl1, name = "Rel1")
-  heatmap_Ext1 <- Heatmap(rk_Ext1, name = "Ext1")
+  heatmap_Ord0 <- ComplexHeatmap::Heatmap(rk_Ord0, name = "Ord0")
+  heatmap_Ext0 <- ComplexHeatmap::Heatmap(rk_Ext0, name = "Ext0")
+  heatmap_Rel1 <- ComplexHeatmap::Heatmap(rk_REl1, name = "Rel1")
+  heatmap_Ext1 <- ComplexHeatmap::Heatmap(rk_Ext1, name = "Ext1")
 
   heatmap_Ord0 + heatmap_Ext0 + heatmap_Rel1 + heatmap_Ext1
 }
