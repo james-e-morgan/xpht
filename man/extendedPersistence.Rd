@@ -58,11 +58,12 @@ no filename specified, prompts user for filename. The default value is
 value is \code{TRUE}.}
 }
 \value{
-A list of length 5 with names \emph{"Name"}, \emph{"Ord0"}, \emph{"Rel1"}, \emph{"Ext0"},
+A list of length \code{nDirections} where the \emph{i}-th entry is the extended
+persistence diagram in the \emph{i}-th direction. Each diagram is a list of
+length five with names \emph{"Name"}, \emph{"Ord0"}, \emph{"Rel1"}, \emph{"Ext0"},
 \emph{"Ext1"}. The entry for \code{Name} is a string identifying the object and the
-direction used for the height filtration. The remaining entries are lists
-containing the relevant part of the extended persistence diagram. The i-th
-entry corresponds to the i-th direction.
+direction used for the height filtration. The remaining entries are
+(possibly empty) matrices containing the points on the relevant diagram.
 }
 \description{
 The function \code{\link[=extendedPersistence]{extendedPersistence()}} computes the extended persistent

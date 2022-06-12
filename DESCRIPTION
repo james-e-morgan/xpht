@@ -1,12 +1,33 @@
+Type: Package
 Package: XPHT
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("James", "Morgan", , "james.morgan@sydney.edu.au", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Title: Shape Statistics with the Extended Persistent Homology Transform
+Version: 1.0.0.9000
+Date: 12-06-2022
+Authors@R: c(
+    person("James", "Morgan", , "james.morgan@sydney.edu.au", role = c("aut", "cre")),
+    person("Yossi", "Bokor", , "yossi@yossi.eu", role = "aut"),
+    person("Katharine", "Turner", , "katharine.turner@anu.edu.au", role = c("aut", "fnd")),
+    person("Vanessa", "Robins", , "vanessa.robins@anu.edu.au", role = "aut")
+  )
+Author: Yossi Bokor, James Morgan, Vanessa Robins, Katharine Turner
+Maintainer: James Morgan <james.morgan@sydney.edu.au>
+Description: An implementation of the extended persistent homology
+    transform (XPHT) for shape statistics of two dimensional binary
+    images. This is done by computing the extended persistent homology of
+    the boundary curves of the image in multiple evenly spaced directions
+    similar to Turner et al. (2014).  We offer functionality for plotting
+    extended persistence diagrams and barcodes as well as the Wasserstein
+    p distance matrix.
+License: use_mit_license()
+Depends: 
+    R (>= 3.1.0)
+Imports:
+    imager,
+    RcppHungarian
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

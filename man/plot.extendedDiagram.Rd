@@ -9,6 +9,8 @@
   barcode = FALSE,
   col = c("#000000", "#e69f00", "#009e73", "#d55e00"),
   pch = 15:18,
+  lwd = 2,
+  cex = 1,
   lab.line = 2.2,
   ...
 )
