@@ -56,7 +56,7 @@ extendedPersistence <- function(bdryCurves,
       cat("Output directory doesn't exist. Saving to working directory.\n")
     }
     if (is.null(fName)) {
-      fName <- readLine(prompt = "Please provide a filename for save: ")
+      fName <- readline(prompt = "Please provide a filename for save: ")
     }
     out_file <- paste(outputDir, "/", fName, ".RDS", sep = "")
   }
@@ -104,7 +104,7 @@ extendedPersistence <- function(bdryCurves,
       n_components = n_components,
       diagram_name = diagram_name
     )
-    class(extendedDiagram) <- "extendedDiagram"
+    class(extendedDiagram) <- "extendedPHT"
     x_diagram[[d]] <- extendedDiagram
   }
 
