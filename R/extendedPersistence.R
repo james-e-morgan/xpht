@@ -347,8 +347,6 @@ computeDiagram <- function(filtration, direction, tolerance, collinearTol) {
   )
 
   if (abs(max(sorted_heights) - min(sorted_heights)) > tolerance) {
-    print("Extended class")
-    print(abs(max(sorted_heights) - min(sorted_heights)))
     diagram[["extended"]] <- c(
       head(sorted_heights, 1),
       tail(sorted_heights, 1)
