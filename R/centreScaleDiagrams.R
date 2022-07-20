@@ -100,7 +100,8 @@ findCentre <- function(n_dirs, lambda) {
     )
   }))
   directions <- lambda * directions
-  cp <- colSums(directions) / (n_dirs * 0.5)
+  K <- sum(directions[,1]^2)
+  cp <- colSums(directions) / K
 
   return(cp)
 }
