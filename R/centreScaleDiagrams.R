@@ -99,8 +99,8 @@ findCentre <- function(n_dirs, lambda) {
       sin(2 * pi * r / n_dirs)
     )
   }))
-  directions <- lambda * directions
   K <- sum(directions[,1]^2)
+  directions <- lambda * directions
   cp <- colSums(directions) / K
 
   return(cp)
