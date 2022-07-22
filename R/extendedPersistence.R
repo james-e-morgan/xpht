@@ -129,7 +129,7 @@ extendedPersistence <- function(bdryCurves,
     } else {
       neg_diagram[["Ext1"]] <- vector()
     }
-    class(neg_diagram) <- "extendedDiagram"
+    class(neg_diagram) <- "extendedPHT"
     x_diagram[[d]] <- neg_diagram
   }
 
