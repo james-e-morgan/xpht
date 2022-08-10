@@ -64,8 +64,6 @@ centreDiagrams <- function(diagrams, n_dirs, lambda) {
     n_dirs = n_dirs,
     lambda = lambda
   )
-  
-  print(cp)
 
   directions <- t(sapply(1:n_dirs, function(r) {
     c(
@@ -73,8 +71,6 @@ centreDiagrams <- function(diagrams, n_dirs, lambda) {
       sin(2 * pi * r / n_dirs)
     )
   }))
-  print(n_dirs)
-  print(directions)
 
   for (i in 1:n_dirs) {
     shift <- sum(cp * directions[i, ])
