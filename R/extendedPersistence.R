@@ -36,8 +36,8 @@
 #' @inheritParams extractBoundary
 #' @return A list of length `nDirections` where the *i*-th entry is the extended
 #'  persistence diagram in the *i*-th direction. Each diagram is a list of
-#'  length five with names *"Name"*, *"Ord0"*, *"Rel1"*, *"Ext0"*,
-#'  *"Ext1"*. The entry for `Name` is a string identifying the object and the
+#'  length five with names *"Name"*, *"Ord0"*, *"Rel1"*, *"Ess0"*,
+#'  *"Ess1"*. The entry for `Name` is a string identifying the object and the
 #'  direction used for the height filtration. The remaining entries are
 #'  (possibly empty) matrices containing the points on the relevant diagram.
 #' @export
@@ -110,7 +110,7 @@ extendedPersistence <- function(bdryCurves,
 
   for (d in midpoint:nDirections) {
     diagram_name <- paste(imgName, "-", toString(d), sep = "")
-    neg_diagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
+    neg_diagram.names <- c("Name", "Ord0", "Rel1", "Ess0", "Ess1")
     neg_diagram <- sapply(neg_diagram.names, function(x) NULL)
 
     neg_diagram[["Name"]] <- diagram_name
@@ -118,22 +118,22 @@ extendedPersistence <- function(bdryCurves,
 
     neg_diagram[["Ord0"]] <- (-1) * x_diagram[[k]][["Rel1"]]
     neg_diagram[["Rel1"]] <- (-1) * x_diagram[[k]][["Ord0"]]
-    neg_diagram[["Ext0"]] <- -matrix(x_diagram[[k]][["Ext0"]][, c(2, 1)],
+    neg_diagram[["Ess0"]] <- -matrix(x_diagram[[k]][["Ess0"]][, c(2, 1)],
       ncol = 2
     )
 
-    if (length(x_diagram[[k]][["Ext1"]]) > 0) {
-      neg_diagram[["Ext1"]] <- -matrix(x_diagram[[k]][["Ext1"]][, c(2, 1)],
+    if (length(x_diagram[[k]][["Ess1"]]) > 0) {
+      neg_diagram[["Ess1"]] <- -matrix(x_diagram[[k]][["Ess1"]][, c(2, 1)],
         ncol = 2
       )
     } else {
-      neg_diagram[["Ext1"]] <- vector()
+      neg_diagram[["Ess1"]] <- vector()
     }
     class(neg_diagram) <- "extendedPHT"
     x_diagram[[d]] <- neg_diagram
   }
 
-  class(x_diagram) <- "extendedPHT"
+  #class(x_diagram) <- "extendedPHT"
 
   if (saveOutput) {
     saveRDS(x_diagram, file = out_file)
@@ -524,7 +524,7 @@ findParent <- function(x,
 computeExtendedDiagram <- function(persistence_diagram,
                                    n_components,
                                    diagram_name) {
-  ex_diagram.names <- c("Name", "Ord0", "Rel1", "Ext0", "Ext1")
+  ex_diagram.names <- c("Name", "Ord0", "Rel1", "Ess0", "Ess1")
   ex_diagram <- sapply(ex_diagram.names, function(x) NULL)
 
   ord_0 <- vector()
@@ -570,8 +570,8 @@ computeExtendedDiagram <- function(persistence_diagram,
   }
   ex_diagram[["Ord0"]] <- ord_0
   ex_diagram[["Rel1"]] <- rel_1
-  ex_diagram[["Ext0"]] <- ext_0
-  ex_diagram[["Ext1"]] <- ext_1
+  ex_diagram[["Ess0"]] <- ext_0
+  ex_diagram[["Ess1"]] <- ext_1
 
   return(ex_diagram)
 }

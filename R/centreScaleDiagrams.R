@@ -51,9 +51,9 @@ centreScaleDiagrams <- function(diagrams,
 
 findMinBirthTimes <- function(n_dirs, diagrams) {
   lambda <- vector()
-  # The first component born in any direction belongs to Ext0
+  # The first component born in any direction belongs to Ess0
   for (i in 1:n_dirs) {
-    birth_times <- c(diagrams[[i]][["Ext0"]][, 1])
+    birth_times <- c(diagrams[[i]][["Ess0"]][, 1])
     lambda <- append(lambda, min(birth_times))
   }
   return(lambda)
@@ -75,7 +75,7 @@ centreDiagrams <- function(diagrams, n_dirs, lambda) {
   for (i in 1:n_dirs) {
     shift <- sum(cp * directions[i, ])
 
-    diagrams[[i]][["Ext0"]] <- diagrams[[i]][["Ext0"]] - shift
+    diagrams[[i]][["Ess0"]] <- diagrams[[i]][["Ess0"]] - shift
 
     if (length(diagrams[[i]][["Ord0"]]) > 0) {
       diagrams[[i]][["Ord0"]] <- diagrams[[i]][["Ord0"]] - shift
@@ -85,8 +85,8 @@ centreDiagrams <- function(diagrams, n_dirs, lambda) {
       diagrams[[i]][["Rel1"]] <- diagrams[[i]][["Rel1"]] - shift
     }
 
-    if (length(diagrams[[i]][["Ext1"]]) > 0) {
-      diagrams[[i]][["Ext1"]] <- diagrams[[i]][["Ext1"]] - shift
+    if (length(diagrams[[i]][["Ess1"]]) > 0) {
+      diagrams[[i]][["Ess1"]] <- diagrams[[i]][["Ess1"]] - shift
     }
   }
   return(diagrams)
@@ -116,7 +116,7 @@ scaleDiagrams <- function(diagrams, n_dirs, lambda, scaleConstant) {
   scale_value <- scaleConstant / scale_denom
 
   for (i in 1:n_dirs) {
-    diagrams[[i]][["Ext0"]] <- diagrams[[i]][["Ext0"]] * scale_value
+    diagrams[[i]][["Ess0"]] <- diagrams[[i]][["Ess0"]] * scale_value
 
     if (length(diagrams[[i]][["Ord0"]]) > 0) {
       diagrams[[i]][["Ord0"]] <- diagrams[[i]][["Ord0"]] * scale_value
@@ -126,8 +126,8 @@ scaleDiagrams <- function(diagrams, n_dirs, lambda, scaleConstant) {
       diagrams[[i]][["Rel1"]] <- diagrams[[i]][["Rel1"]] * scale_value
     }
 
-    if (length(diagrams[[i]][["Ext1"]]) > 0) {
-      diagrams[[i]][["Ext1"]] <- diagrams[[i]][["Ext1"]] * scale_value
+    if (length(diagrams[[i]][["Ess1"]]) > 0) {
+      diagrams[[i]][["Ess1"]] <- diagrams[[i]][["Ess1"]] * scale_value
     }
   }
   return(diagrams)

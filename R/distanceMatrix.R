@@ -72,7 +72,7 @@ computeDistanceMatrix <- function(diagrams,
 }
 
 unalignedDistance <- function(object_1, object_2, q, n_dirs) {
-  ds <- c("Ext0", "Ext1", "Ord0", "Rel1")
+  ds <- c("Ess0", "Ess1", "Ord0", "Rel1")
   # Aligned distance gives a starting point
   min_dist <- alignedDistance(
     object_1 = object_1,
@@ -111,7 +111,7 @@ unalignedDistance <- function(object_1, object_2, q, n_dirs) {
 }
 
 alignedDistance <- function(object_1, object_2, q, n_dirs) {
-  ds <- c("Ord0", "Rel1", "Ext0", "Ext1")
+  ds <- c("Ord0", "Rel1", "Ess0", "Ess1")
   total <- 0
 
   for (x in ds) {
