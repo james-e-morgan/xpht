@@ -60,8 +60,8 @@ value is \code{TRUE}.}
 \value{
 A list of length \code{nDirections} where the \emph{i}-th entry is the extended
 persistence diagram in the \emph{i}-th direction. Each diagram is a list of
-length five with names \emph{"Name"}, \emph{"Ord0"}, \emph{"Rel1"}, \emph{"Ext0"},
-\emph{"Ext1"}. The entry for \code{Name} is a string identifying the object and the
+length five with names \emph{"Name"}, \emph{"Ord0"}, \emph{"Rel1"}, \emph{"Ess0"},
+\emph{"Ess1"}. The entry for \code{Name} is a string identifying the object and the
 direction used for the height filtration. The remaining entries are
 (possibly empty) matrices containing the points on the relevant diagram.
 }

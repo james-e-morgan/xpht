@@ -16,21 +16,21 @@
 )
 }
 \arguments{
-\item{x}{\code{extendedDiagram} object to plot.}
+\item{x}{\code{extendedPHT} object to plot.}
 
 \item{barcode}{If \code{TRUE}, then barcode is plotted. Default value is \code{FALSE}.}
 
 \item{col}{\code{vector} containing the four colours to use in plotting in the
-order Ord0, Rel1, Ext0, Ext1. The default value is
+order Ord0, Rel1, Ess0, Ess1. The default value is
 \itemize{
 \item "#000000" for Ord0
 \item "#e69f00" for Rel1
-\item "#009e73" for Ext0
-\item "#d55e00" for Ext1
+\item "#009e73" for Ess0
+\item "#d55e00" for Ess1
 }}
 
 \item{pch}{Symbols to use if plotting extended persistence diagram in order
-Ord0, Rel1, Ext0, Ext1. The default value is \code{15:18}.}
+Ord0, Rel1, Ess0, Ess1. The default value is \code{15:18}.}
 
 \item{lab.line}{Control distance of axis labels to axes. The default value is
 2.2.}
@@ -39,15 +39,15 @@ Ord0, Rel1, Ext0, Ext1. The default value is \code{15:18}.}
     section \sQuote{Details} below).}
 }
 \description{
-The function \code{\link[=plot.extendedDiagram]{plot.extendedDiagram()}} plots the extended persistence diagram
-or extended persistence barcode of an \code{extendedDiagram} object.
+The function \code{\link[=plot.extendedPHT]{plot.extendedPHT()}} plots the extended persistence diagram
+or extended persistence barcode of an \code{extendedPHT} object.
 }
 \details{
 This is a generic function. Plot the the extended persistence diagram or the
 extended persistence barcode of an object. If the diagram is plotted, then
 the diagonal \eqn{birth = death} is also plotted. The classes in Ord0 and
-Ext0 have \eqn{birth < death}  and are plotted above the diagonal, whereas
-classes in Rel1 and Ext1 have \eqn{birth > death} and are plotted below the
+Ess0 have \eqn{birth < death}  and are plotted above the diagonal, whereas
+classes in Rel1 and Ess1 have \eqn{birth > death} and are plotted below the
 diagonal. If the barcode is plotted then classes will be stacked in the
-order Ord0, Rel1, Ext0, Ext1.
+order Ord0, Rel1, Ess0, Ess1.
 }
