@@ -23,7 +23,7 @@
 #' @param fName The name of the output file saved. If saveOutput is TRUE and
 #'  no filename specified, prompts user for filename. The default value is
 #'  `NULL`.
-#' @param verbose If TRUE, prints indictors of progress throughout. The default
+#' @param verbose If TRUE, prints indicators of progress throughout. The default
 #'  value is `TRUE`.
 #' @return A list containing the points on the boundary curves structured as:
 #'    * The first entry is a vector \code{(m,n)} containing the number of

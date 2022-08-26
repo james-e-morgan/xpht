@@ -32,6 +32,11 @@ order Ord0, Rel1, Ess0, Ess1. The default value is
 \item{pch}{Symbols to use if plotting extended persistence diagram in order
 Ord0, Rel1, Ess0, Ess1. The default value is \code{15:18}.}
 
+\item{lwd}{Line width of bars in barcode plot.}
+
+\item{cex}{Scaling of text and symbols relative to default. Default value is
+1.}
+
 \item{lab.line}{Control distance of axis labels to axes. The default value is
 2.2.}
 

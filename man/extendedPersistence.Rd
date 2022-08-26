@@ -54,7 +54,7 @@ is \code{NULL}.}
 no filename specified, prompts user for filename. The default value is
 \code{NULL}.}
 
-\item{verbose}{If TRUE, prints indictors of progress throughout. The default
+\item{verbose}{If TRUE, prints indicators of progress throughout. The default
 value is \code{TRUE}.}
 }
 \value{
@@ -79,5 +79,5 @@ one skeleton by adding an edge between each pair of consecutive vertices.
 This skeleton is used to compute the height filtration in a given direction
 and determine the lower neighbours of each vertex. The regular persistent
 homology of each curve is then computed by the union find algorithm and used
-to contruct the extended persistent homology.
+to construct the extended persistent homology.
 }

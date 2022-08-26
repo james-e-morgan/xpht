@@ -32,7 +32,7 @@ alignment. The default value is \code{FALSE}.}
 pair of objects has been computed.}
 }
 \value{
-A squre, symmetrix \code{matrix} where entry \eqn{(i,j)} contains the
+A square, symmetric \code{matrix} where entry \eqn{(i,j)} contains the
 \eqn{q}-Wasserstein distance between the XPHTs of objects i and j.
 }
 \description{

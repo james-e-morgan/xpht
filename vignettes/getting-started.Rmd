@@ -106,13 +106,13 @@ arrows(x0=boundaryg[[3]][1,1], y0=boundaryg[[3]][1,2],
 
 Once again we can see that the curves are oriented as we expect.
 
-## Extracting Boundary Countours of Multiple Binary Images
+## Extracting Boundary Contours of Multiple Binary Images
 When extracting the boundary curves of a single image, the user must first load the image into R. For multiple images, all that is needed is a directory containing the images along with the file extension. We're going to extract the boundaries of all 95 letter A images. These are `pbm` files so we specify this. Take note that we specify this as `pbm` and not `.pbm`. It may be a good idea to set `verbose=FALSE` for this as we get output for every image processed.
 
 ```{r}
 fpath <- system.file('extdata/letterA', package='XPHT')
 ABoundaries <- multiExtractBoundary(fpath, imgType = 'pbm', verbose = FALSE)
-length(ABoundaries)
+length(ABoundaries[1:10])
 class(ABoundaries)
 ```
 
@@ -147,7 +147,7 @@ To compute the XPHT we need to compute the extended persistent homology in multi
 xphtA <- extendedPersistence(boundaryA, 'A-courier-new', 8)
 ```
 
-The extended persisence diagrams are stored in a list of length $2n$, where $2n$ is the number of directions used. The $k$-th entry holds the diagram for the image in the $k$-th direction.
+The extended persistence diagrams are stored in a list of length $2n$, where $2n$ is the number of directions used. The $k$-th entry holds the diagram for the image in the $k$-th direction.
 
 ```{r}
 length(xphtA)
@@ -161,7 +161,7 @@ names(xphtA[[1]])
 xphtA[[1]]
 ```
 
-Each individual diagram has the class `extendedPHT`. This is stored just a reclassed named list. A diagram has named entries:
+Each individual diagram has the class `extendedPHT`. This is stored just a named list. A diagram has named entries:
 
 * `Name` contains the value of `imgName` provided to `extendedPersistence`. For us, this was 'A-courier-new'.
 * `Ord0` contains the non-essential classes of ordinary persistent homology where the birth vertex is a local minimum.
@@ -239,7 +239,7 @@ legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lt
 Details on the centring and scaling algorithms can be found in [this paper](https://arxiv.org/pdf/1310.1030.pdf).
 
 # Computing Distances between Extended Persistence Diagrams
-Our computation of the XPHT requires computing the extended persistent homology in finitely many directions. In order to compare how close two shapes are we need to compute the distance between their XPHTs. This is done entirely analagously to the method described in [Turner, Mukherjee, & Boyer (2014)](https://arxiv.org/pdf/1310.1030.pdf). We give a brief explanation here, but suggest any interested readers consult the paper as it is much more detailed and likely clearer.
+Our computation of the XPHT requires computing the extended persistent homology in finitely many directions. In order to compare how close two shapes are we need to compute the distance between their XPHTs. This is done entirely analogously to the method described in [Turner, Mukherjee, & Boyer (2014)](https://arxiv.org/pdf/1310.1030.pdf). We give a brief explanation here, but suggest any interested readers consult the paper as it is much more detailed and likely clearer.
 
 ## Light Details of Computing the $q$-Wasserstein Distance
 In short, we compute the $q$-Wasserstein distance between two extended persistence diagrams by computing the $q$-Wasserstein distance between each of the four sub-diagrams (`Ord0`, `Rel1`, `Ess0`, `Ess1`), adding them, and finally averaging overall directions and taking the $q$-th root. In more detail, let $X$ and $Y$ be two binary images. Let $Ord_0(X,v)$ and $Ord_0(Y,v)$ be the `Ord0` subdiagram of the extended persistent homology in direction $v$ for each image.
@@ -323,4 +323,4 @@ fonts.mds <- cmdscale(distMat, eig = TRUE, k = 2)
 plot.mds(fonts.mds, labels=labels, main = "MDS of Letter g Images using 2-Wasserstein Distance")
 ```
 
-For the most part our implementation of the XPHT has resulted in a successful clustering of the lowercase letter **g** depending on whether it has one or two storeys. One of the fonts used has uppcase letters when using lowercase and there was also one image which was fairly noisy. As an exercise to the user, we leave the problem of determining which image this was!
+For the most part our implementation of the XPHT has resulted in a successful clustering of the lowercase letter **g** depending on whether it has one or two storeys. One of the fonts used has uppercase letters when using lowercase and there was also one image which was fairly noisy. As an exercise to the user, we leave the problem of determining which image this was!

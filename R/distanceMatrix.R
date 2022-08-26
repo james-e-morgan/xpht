@@ -23,7 +23,7 @@
 #'  alignment. The default value is `FALSE`.
 #' @param verbose `bool` If `TRUE` will print when the distance between each
 #' pair of objects has been computed.
-#' @return A squre, symmetrix `matrix` where entry \eqn{(i,j)} contains the
+#' @return A square, symmetric `matrix` where entry \eqn{(i,j)} contains the
 #' \eqn{q}-Wasserstein distance between the XPHTs of objects i and j. 
 #' @export
 computeDistanceMatrix <- function(diagrams,

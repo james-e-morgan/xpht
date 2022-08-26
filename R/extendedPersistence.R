@@ -12,7 +12,7 @@
 #'  This skeleton is used to compute the height filtration in a given direction
 #'  and determine the lower neighbours of each vertex. The regular persistent
 #'  homology of each curve is then computed by the union find algorithm and used
-#'  to contruct the extended persistent homology.
+#'  to construct the extended persistent homology.
 #'
 #' @param bdryCurves A list containing points along the boundary curves of the
 #'  image. The list must be structured as
@@ -164,6 +164,7 @@ extendedPersistence <- function(bdryCurves,
 #'  the list is the extended persistence diagrams for the \eqn{i}-th file in
 #'  `inputDir`.
 #' @seealso extendedPersistence()
+#' #' @importFrom utils tail
 #' @export
 multiExtendedPersistence <- function(inputDir,
                                      nDirections,
@@ -334,6 +335,7 @@ dotProduct <- function(v_1, v_2) {
   return(sum(v_1 * v_2))
 }
 
+#' @importFrom utils head tail
 computeDiagram <- function(filtration, direction, tolerance, collinearTol) {
   sorted_heights <- unique(sort(filtration[["height"]]))
   n_vertices <- length(filtration[["height"]])

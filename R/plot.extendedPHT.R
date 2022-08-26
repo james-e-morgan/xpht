@@ -23,6 +23,9 @@
 #'  Ord0, Rel1, Ess0, Ess1. The default value is `15:18`.
 #' @param lab.line Control distance of axis labels to axes. The default value is
 #'  2.2.
+#' @param lwd Line width of bars in barcode plot.
+#' @param cex Scaling of text and symbols relative to default. Default value is
+#' 1.
 #' @inheritParams graphics::plot
 #' @export
 plot.extendedPHT <- function(x,

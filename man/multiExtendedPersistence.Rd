@@ -36,7 +36,7 @@ directory specified by outputDir. The default values is \code{FALSE}.}
 and no directory is specified, saves to working directory. The default
 is \code{NULL}.}
 
-\item{verbose}{If TRUE, prints indictors of progress throughout. The default
+\item{verbose}{If TRUE, prints indicators of progress throughout. The default
 value is \code{TRUE}.}
 }
 \value{
@@ -52,4 +52,5 @@ Runs \code{\link[=extendedPersistence]{extendedPersistence()}} on all .RDS files
 }
 \seealso{
 extendedPersistence()
+#' @importFrom utils tail
 }

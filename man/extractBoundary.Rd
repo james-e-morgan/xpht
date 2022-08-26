@@ -31,7 +31,7 @@ is \code{NULL}.}
 no filename specified, prompts user for filename. The default value is
 \code{NULL}.}
 
-\item{verbose}{If TRUE, prints indictors of progress throughout. The default
+\item{verbose}{If TRUE, prints indicators of progress throughout. The default
 value is \code{TRUE}.}
 }
 \value{
