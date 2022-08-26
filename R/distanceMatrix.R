@@ -21,11 +21,16 @@
 #'  \eqn{1\leq q < \infty}. The default value is 1.
 #' @param aligned `bool` to indicate whether the original images have the same
 #'  alignment. The default value is `FALSE`.
+#' @param verbose `bool` If `TRUE` will print when the distance between each
+#' pair of objects has been computed.
+#' @return A squre, symmetrix `matrix` where entry \eqn{(i,j)} contains the
+#' \eqn{q}-Wasserstein distance between the XPHTs of objects i and j. 
 #' @export
 computeDistanceMatrix <- function(diagrams,
                                   nObjects,
                                   q = 1,
-                                  aligned = FALSE) {
+                                  aligned = FALSE,
+                                  verbose = TRUE) {
   n_dirs <- length(diagrams) / nObjects
 
   distance_matrix <- matrix(0, nrow = nObjects, ncol = nObjects)
@@ -60,15 +65,40 @@ computeDistanceMatrix <- function(diagrams,
 
       distance_matrix[i, j] <- d_ij
       distance_matrix[j, i] <- d_ij
-
-      print(paste("Computed distance (", i, ",", j, ") and (",
-        j, ",", i, ")",
-        sep = ""
-      ))
+      
+      if (verbose) {
+        print(paste("Computed distance (", i, ",", j, ") and (",
+          j, ",", i, ")",
+          sep = ""
+        ))
+      }
     }
   }
-
+  cat("Successfully computed all distances.")
   return(distance_matrix)
+}
+
+#' Stack Multiple XPHTs into a Single List
+#' 
+#' Given a directory of XPHTs, load each XPHT and store as an element in a
+#' list.
+#' 
+#' @param inputDir The directory containing the XPHTs stored as `.RDS` files.
+#' @return A list of XPHTs
+#' @export
+stackDiagrams <- function(inputDir) {
+  files = list.files(inputDir, full.names=TRUE, recursive=FALSE)
+  data = vector(mode = "list")
+  cx = 1
+  for (i in seq_along(files)) {
+    dgm = readRDS(files[[i]])
+    for (j in seq_along(dgm)) {
+      data[[cx]] = dgm[[j]]
+      cx = cx + 1
+    }
+  }
+  cat('Successfully loaded XPHTs of', length(files), 'images.\n', sep=" ")
+  return(data)
 }
 
 unalignedDistance <- function(object_1, object_2, q, n_dirs) {
