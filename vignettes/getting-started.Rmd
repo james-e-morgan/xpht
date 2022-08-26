@@ -37,8 +37,8 @@ Provided with this package are two data sets of images - one of the letter **A**
 
 ```{r dev='jpeg'}
 library(imager)
-gridA <- system.file('extdata/gridA.gif', package='XPHT')
-gridg <- system.file('extdata/gridg.gif', package='XPHT')
+gridA <- system.file('extdata/gridA.png', package='XPHT')
+gridg <- system.file('extdata/gridg.png', package='XPHT')
 imgA <- load.image(gridA)
 imgg <- load.image(gridg)
 par(mfrow=c(1,2))
@@ -184,9 +184,9 @@ Computing the XPHT is great, but we really would like to see some of these diagr
 
 ```{r}
 par(mfrow=c(1,2))
-plot(xphtA[[1]], main = "Extended Persistence of A\nin Direction pi/8")
+plot(xphtA[[1]], main = "Extended Persistence of A\nin Direction pi/4")
 legend("bottomright", legend=c("Ord0", "Rel1", "Ess0", "Ess1"), col = getDefaultColours(), pch = 15:18)
-plot(xphtg[[1]], main = "Extended Persistence of g\nin Direction pi/8")
+plot(xphtg[[1]], main = "Extended Persistence of g\nin Direction pi/4")
 legend("topright", legend=c("Ord0", "Rel1", "Ess0", "Ess1"), col = getDefaultColours(), pch = 15:18)
 ```
 
@@ -196,24 +196,131 @@ Another useful plot we can use to visualise the extended persistent homology is 
 
 ```{r}
 par(mfrow=c(2,1), mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
-plot(xphtA[[1]], barcode = TRUE, main = "Extended Persistence Barcode of A\nin Direction pi/8")
+plot(xphtA[[1]], barcode = TRUE, main = "Extended Persistence Barcode of A\nin Direction pi/4")
 legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
-plot(xphtg[[1]], barcode = TRUE, main = "Extended Persistence Barcode of g\nin Direction pi/8")
+plot(xphtg[[1]], barcode = TRUE, main = "Extended Persistence Barcode of g\nin Direction pi/4")
 legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
 ```
 
 Both of these formats convey the same information. It's just a question of which one is easier for your purposes.
 
-# Centering and Scaling Images
-Center an image without scaling
-Center and scale an image.
+# Centring and Scaling Images
+When comparing images we need to make sure comparing their persistence diagrams makes sense. There are two issues here:
 
-Comparison of plots.
+* When we extract the boundary curves we assign coordinates based on their index in the matrix form of the image. This means that everything has positive coordinates. Depending on the image there might be a lot more background surrounding it meaning the coordinates we see may be vastly different.
+* The images we compare may have wildly different sizes. This will primarily affect the lifetimes of the persistence classes we see, along with the issue of their position.
+
+To counteract this we can centre and scale the images. Doing this to a whole image can be computationally expensive so instead we can do this to the XPHT of each image. Of these two operations, centring will nearly always need to be done and so we offer functionality to do this alone. Let's try it on the examples we plotted previously:
+
+```{r}
+centredA <- centreScaleDiagrams(xphtA, scale = FALSE)
+centredg <- centreScaleDiagrams(xphtg, scale = FALSE)
+par(mfrow=c(2,1), mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+plot(centredA[[1]], barcode = TRUE, main = "Centred Extended Persistence Barcode of A\nin Direction pi/4")
+legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
+plot(centredg[[1]], barcode = TRUE, main = "Centred Extended Persistence Barcode of g\nin Direction pi/4")
+legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
+```
+
+Observe that the lifetimes are now centred around 0 rather than approximately 90.
+
+For the example data set we have set the font size to be consistent amongst the images, however this is not a general feature of image data. Setting the argument `scale=TRUE` allows us to scale the images so that they are relatively consistently sized. This will, perhaps unsurprisingly, control the scale of the birth and death times that you will see. You can also specify a constant which controls the scaling, allowing the scaled version to be larger or smaller depending on what you want. As an example, we will set `scaleConstant=5`.
+
+```{r}
+scaledA <- centreScaleDiagrams(xphtA, scale = TRUE, scaleConstant = 5)
+scaledg <- centreScaleDiagrams(xphtg, scale = TRUE, scaleConstant = 5)
+par(mfrow=c(2,1), mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+plot(scaledA[[1]], barcode = TRUE, main = "Centred and Scaled Extended Persistence Barcode of A\nin Direction pi/4")
+legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
+plot(scaledg[[1]], barcode = TRUE, main = "Centred and Scaled Extended Persistence Barcode of g\nin Direction pi/4")
+legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
+```
+
+Details on the centring and scaling algorithms can be found in [this paper](https://arxiv.org/pdf/1310.1030.pdf).
 
 # Computing Distances between Extended Persistence Diagrams
-Unaligned distance
-Aligned Distance.
-Mention symmetric matrix
+Our computation of the XPHT requires computing the extended persistent homology in finitely many directions. In order to compare how close two shapes are we need to compute the distance between their XPHTs. This is done entirely analagously to the method described in [Turner, Mukherjee, & Boyer (2014)](https://arxiv.org/pdf/1310.1030.pdf). We give a brief explanation here, but suggest any interested readers consult the paper as it is much more detailed and likely clearer.
+
+## Light Details of Computing the $q$-Wasserstein Distance
+In short, we compute the $q$-Wasserstein distance between two extended persistence diagrams by computing the $q$-Wasserstein distance between each of the four sub-diagrams (`Ord0`, `Rel1`, `Ess0`, `Ess1`), adding them, and finally averaging overall directions and taking the $q$-th root. In more detail, let $X$ and $Y$ be two binary images. Let $Ord_0(X,v)$ and $Ord_0(Y,v)$ be the `Ord0` subdiagram of the extended persistent homology in direction $v$ for each image.
+
+* If both $Ord_0(X,v)$ and $Ord_0(Y,v)$ have no points, then the distance between them is $0$.
+* If $Ord_0(X,v)$ has $n>0$ points and $Ord_0(Y,v)$ has no points, then we take the sum of the distance of each point in $Ord_0(X,v)$ to the diagonal $y=x$. This is similar if $Ord_0(X,v)$ has no points and $Ord_0(Y,v)$ has $n>0$ points.
+* If both $Ord_0(X,v)$ and $Ord_0(Y,v)$ contain a non-zero number of points then we take the distance to be the minimum over all matchings of points (matching some to the diagonal $y=x$ when needed). This is achieved by using an implementation of the Hungarian algorithm.
+
+This process is the same for each of the four subdiagrams. 
+
+There are two options for computing this process depending on whether the initial images have been aligned relative to each other. Let $\{v_1,\dots,v_2n\}$ be the directions used to compute the XPHT.
+
+* If the images $X$ and $Y$ are aligned, then we take the distance between their extended persistence diagrams in the same direction.
+* If the images $X$ and $Y$ are unaligned, then we take the distance between we take the distance between the extended persistence diagram of $X$ in direction $v_i$ against each of the $2n$ extended persistence diagrams of $Y$ and take the distance as the minimum of all these.
+
+## Computing the Aligned and Unaligned Distances
+With the (light) details out the way we can get to doing some computing. It is important to note that we are computing the distance between different *objects* and so will need to compute multiple XPHTs. While we encourage the user to do this (using the `multiExtendedPersistence` function) we have provided the centred XPHT in 32 directions for a subset of the provided letter **A** and **g** images. We choose a subset as, given $n$ images, we must compute $n(n-1)/2$ distances (as the distance between an image and itself is 0) and this can take a while. 
+
+Our first job is to load these in and store all diagrams in a single list. This can be achieved 
+
+```{r}
+fpathA <- system.file("extdata/xpht32A/", package='XPHT')
+fpathg <- system.file("extdata/xpht32g/", package='XPHT')
+diagramsA <- stackDiagrams(fpathA)
+diagramsg <- stackDiagrams(fpathg)
+```
+
+For demonstration purposes we will compute both the aligned and unaligned distances for each set of objects. To do this we also need to specify the number of images (which is conveniently output from the `stackDiagrams` function). By default, we assume the objects are unaligned.
+
+```{r}
+distMatrixA.aligned <- computeDistanceMatrix(diagramsA, 13, q = 2, aligned = TRUE, verbose = FALSE)
+distMatrixg.unaligned <- computeDistanceMatrix(diagramsg, 13, q = 2, verbose = FALSE)
+```
+
+We can quickly check what one of these matrices looks like:
+```{r}
+distMatrixA.aligned[1:6,1:6]
+```
+
+From this small portion we can see what we expect - a symmetric matrix with 0s along the diagonal.
 
 ## Using Distance Matrices for Multidimensional Scaling
-MDS Example
+We close off this vignette with a toy example of using multidimensional scaling on the XPHT of the letter As. We have provided a precomputed distance matrix of the centred (but not scaled) XPHTs for all 95 letter **g** images. For lowercase g's a key feature is whether it has one or two closed loops. This is referred to as having one or two storeys. We provide a text file labelling each letter **g** image appropriately.
+
+Before we compute this, let's define a convenient plotting function.
+
+```{r}
+plot.mds <- function(x, labels, main = NULL,
+                     colour = c("#E41A1C","#377EB8","#4DAF4A"), legend.pos = "topleft",
+                     cex = 1.3, pch = 19, cex.main = 1.5, cex.legend = 0.9, ...) {
+  points.mds = x$points
+  
+  limxy = range(points.mds)
+  limxy = limxy + ((limxy[2]-limxy[1])*0.15)*c(-0.5,0.5)
+  
+  par(mar = c(0.2, 0.8, 1.1, 0.8), ps = 10)
+  plot(limxy, limxy, type = "n", axes = FALSE, frame = FALSE)
+  rect(limxy[1], limxy[1], limxy[2], limxy[2], border = "#999999", lwd = 0.3)
+  
+  points(points.mds[,1], points.mds[,2], col = colour[as.integer(labels)], cex=cex, pch=pch)
+  mtext(side = 3, main, cex = cex.main)
+  
+  labels.u = unique(labels)
+  legend.text = as.character(labels.u)
+  
+  legend(legend.pos, legend = legend.text, inset = 0.03,
+         col=colour[as.integer(labels.u)], bty = "n", pch=pch,
+         cex = cex.legend)
+}
+```
+
+We are now ready to compute the MDS using out distance matrix. This is done using the inbuilt `cmdscale` function.
+
+```{r}
+fpath.matrix <- system.file('extdata/distMatg.RDS', package='XPHT')
+fpath.labels <- system.file('extdata/storey.txt', package='XPHT')
+distMat <- readRDS(fpath.matrix)
+labels <- factor(scan(fpath.labels, character(), quote=""))
+
+fonts.mds <- cmdscale(distMat, eig = TRUE, k = 2)
+plot.mds(fonts.mds, labels=labels, main = "MDS of Letter g Images using 2-Wasserstein Distance")
+```
+
+For the most part our implementation of the XPHT has resulted in a successful clustering of the lowercase letter **g** depending on whether it has one or two storeys. One of the fonts used has uppcase letters when using lowercase and there was also one image which was fairly noisy. As an exercise to the user, we leave the problem of determining which image this was!

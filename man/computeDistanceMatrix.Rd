@@ -4,7 +4,13 @@
 \alias{computeDistanceMatrix}
 \title{Compute the distance matrix between Extended Persistent Homology Transforms}
 \usage{
-computeDistanceMatrix(diagrams, nObjects, q = 1, aligned = FALSE)
+computeDistanceMatrix(
+  diagrams,
+  nObjects,
+  q = 1,
+  aligned = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{diagrams}{\code{list} of extended persistence diagrams of multiple objects.
@@ -21,6 +27,13 @@ the number of directions.}
 
 \item{aligned}{\code{bool} to indicate whether the original images have the same
 alignment. The default value is \code{FALSE}.}
+
+\item{verbose}{\code{bool} If \code{TRUE} will print when the distance between each
+pair of objects has been computed.}
+}
+\value{
+A squre, symmetrix \code{matrix} where entry \eqn{(i,j)} contains the
+\eqn{q}-Wasserstein distance between the XPHTs of objects i and j.
 }
 \description{
 The function \code{\link[=computeDistanceMatrix]{computeDistanceMatrix()}} computes the q-Wasserstein distance
