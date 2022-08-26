@@ -15,7 +15,7 @@ Description: An implementation of the extended persistent homology
     transform (XPHT) for shape statistics of two dimensional binary
     images. This is done by computing the extended persistent homology of
     the boundary curves of the image in multiple evenly spaced directions
-    similar to Turner et al. (2014) <https://doi.org/10.1093/imaiai/iau011>.  
+    similar to Turner et al. (2014) <doi:10.1093/imaiai/iau011>.  
     We offer functionality for plotting extended persistence diagrams and 
     barcodes as well as the Wasserstein \eqn{p} distance matrix.
 Language: en-au

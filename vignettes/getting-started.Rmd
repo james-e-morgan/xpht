@@ -49,7 +49,7 @@ plot(imgg, axes=FALSE)
 Each letter **A** on the left grid is included as an individual file, as is each **g** on the right grid. The pixel values are either 0 (for black) or 1 (for white) - *this is a requirement for images used with this package* so that we can clearly define if a pixel is black or white. One of the included fonts is *courier-new*. Let's load the image for the letter **A** in and have a look at it:
 
 ```{r}
-fpath <- system.file('extdata/letterA/courier-new.pbm', package='XPHT')
+fpath <- system.file('extdata/letterA/courier-new.png', package='XPHT')
 img <- load.image(fpath)
 plot(img)
 ```
@@ -86,7 +86,7 @@ The arrow on each curve is set to point to a point in the first half of the curv
 
 We can do the exact same thing for the letter **g** in the same font. This time we don't want `extractBoundary` to print information so we set `verbose=FALSE`.
 ```{r}
-fpath <- system.file('extdata/letterg/courier-new.pbm', package='XPHT')
+fpath <- system.file('extdata/letterg/courier-new.png', package='XPHT')
 img <- load.image(fpath)
 plot(img)
 ```
@@ -107,11 +107,11 @@ arrows(x0=boundaryg[[3]][1,1], y0=boundaryg[[3]][1,2],
 Once again we can see that the curves are oriented as we expect.
 
 ## Extracting Boundary Contours of Multiple Binary Images
-When extracting the boundary curves of a single image, the user must first load the image into R. For multiple images, all that is needed is a directory containing the images along with the file extension. We're going to extract the boundaries of all 95 letter A images. These are `pbm` files so we specify this. Take note that we specify this as `pbm` and not `.pbm`. It may be a good idea to set `verbose=FALSE` for this as we get output for every image processed.
+When extracting the boundary curves of a single image, the user must first load the image into R. For multiple images, all that is needed is a directory containing the images along with the file extension. We're going to extract the boundaries of all 95 letter A images. These are `png` files with this specified. Take note that we specify this as `png` and not `.png`. It may be a good idea to set `verbose=FALSE` for this as we get output for every image processed.
 
 ```{r}
 fpath <- system.file('extdata/letterA', package='XPHT')
-ABoundaries <- multiExtractBoundary(fpath, imgType = 'pbm', verbose = FALSE)
+ABoundaries <- multiExtractBoundary(fpath, imgType = 'png', verbose = FALSE)
 length(ABoundaries[1:10])
 class(ABoundaries)
 ```
