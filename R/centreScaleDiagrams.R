@@ -35,7 +35,7 @@ centreScaleDiagrams <- function(diagrams,
     n_dirs = n_dirs,
     lambda = lambda
   )
-  print("Diagrams successfully centred.")
+  cat("Diagrams successfully centred.")
   if (scale) {
     adjusted_diagrams <- scaleDiagrams(
       diagrams = adjusted_diagrams,
@@ -43,7 +43,7 @@ centreScaleDiagrams <- function(diagrams,
       lambda = lambda,
       scaleConstant = scaleConstant
     )
-    print("Diagrams successfully scaled.")
+    cat("Diagrams successfully scaled.")
   }
 
   return(adjusted_diagrams)

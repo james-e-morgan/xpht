@@ -23,13 +23,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-**XPHT** provides a method for computing shape statistics of binary images through extended persistent homology. Details on the mathematics behind this can be found in `The Extended Persistent Homology Transform of Manifolds with Boundary'.
+**XPHT** provides a method for computing shape statistics of binary images through extended persistent homology. Details on the mathematics behind this can be found in [Turner, Robins, & Morgan](https://arxiv.org/abs/2208.14583).
 
 # Extracting Boundary Contours of Binary Images
 **XPHT** offers two methods for boundary curve extraction - one for a single image and one for multiple images. The main difference is that extracting the boundary of a single image has an extra step.
 
 ## Extracting Boundary Contours of a Single Binary Image
-The first step in using **XPHT** is extracting the boundary curves from one or more binary images. We provide a method for doing this to a single image along with a method for doing this for all images of a particular file type or file name pattern in a specified directory. When loading a single image we need to load this in through the [Imager package](https://cran.r-project.org/web/packages/imager/index.html). For information about the installation of Imager please refer to [this manual](https://cran.r-project.org/web/packages/imager/vignettes/gettingstarted.html).
+The first step in using **XPHT** is extracting the boundary curves from one or more binary images. We provide a method for doing this to a single image along with a method for doing this for all images of a particular file type or file name pattern in a specified directory. When loading a single image we need to load this in through the [Imager package](https://cran.r-project.org/package=imager). For information about the installation of Imager please refer to its Getting Started vignette.
 
 Let's work through an example of loading a single image and extracting its boundary.
 
@@ -169,7 +169,7 @@ Each individual diagram has the class `extendedPHT`. This is stored just a named
 * `Ess0` contains the essential classes of ordinary persistent homology where the birth vertex is a local minimum.
 * `Ess1` contains the essential classes of ordinary persistent homology where the birth vertex is not a local minimum.
 
-More details on each of these can be found in **the paper**.
+More details on each of these can be found in [Turner, Robins, & Morgan](https://arxiv.org/abs/2208.14583).
 
 It is entirely possible that some of these may be empty - and that's fine. While we're here, let's compute the XPHT for the letter **g** we loaded in.
 
@@ -236,10 +236,10 @@ plot(scaledg[[1]], barcode = TRUE, main = "Centred and Scaled Extended Persisten
 legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
 ```
 
-Details on the centring and scaling algorithms can be found in [this paper](https://arxiv.org/pdf/1310.1030.pdf).
+Details on the centring and scaling algorithms can be found in [Turner, Mukherjee, & Boyer (2014)](https://doi.org/10.1093/imaiai/iau011).
 
 # Computing Distances between Extended Persistence Diagrams
-Our computation of the XPHT requires computing the extended persistent homology in finitely many directions. In order to compare how close two shapes are we need to compute the distance between their XPHTs. This is done entirely analogously to the method described in [Turner, Mukherjee, & Boyer (2014)](https://arxiv.org/pdf/1310.1030.pdf). We give a brief explanation here, but suggest any interested readers consult the paper as it is much more detailed and likely clearer.
+Our computation of the XPHT requires computing the extended persistent homology in finitely many directions. In order to compare how close two shapes are we need to compute the distance between their XPHTs. This is done entirely analogously to the method described in [Turner, Mukherjee, & Boyer (2014)](https://doi.org/10.1093/imaiai/iau011). We give a brief explanation here, but suggest any interested readers consult the paper as it is much more detailed and likely clearer.
 
 ## Light Details of Computing the $q$-Wasserstein Distance
 In short, we compute the $q$-Wasserstein distance between two extended persistence diagrams by computing the $q$-Wasserstein distance between each of the four sub-diagrams (`Ord0`, `Rel1`, `Ess0`, `Ess1`), adding them, and finally averaging overall directions and taking the $q$-th root. In more detail, let $X$ and $Y$ be two binary images. Let $Ord_0(X,v)$ and $Ord_0(Y,v)$ be the `Ord0` subdiagram of the extended persistent homology in direction $v$ for each image.

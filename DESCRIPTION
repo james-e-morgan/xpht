@@ -2,20 +2,25 @@ Type: Package
 Package: XPHT
 Title: Shape Statistics with the Extended Persistent Homology Transform
 Version: 1.0.0
-Date: 12-06-2022
+Date: 2022-09-07
 Authors@R: c(
-    person("James", "Morgan", , "james.morgan@sydney.edu.au", role = c("aut", "cre")),
-    person("Yossi", "Bokor", , "yossi@yossi.eu", role = "aut"),
-    person("Katharine", "Turner", , "katharine.turner@anu.edu.au", role = c("aut", "fnd")),
-    person("Vanessa", "Robins", , "vanessa.robins@anu.edu.au", role = "aut")
+    person("James", "Morgan", email = "james.morgan@sydney.edu.au", 
+      role = c("aut", "cre")),
+    person("Yossi", "Bokor", email = "yossi@yossi.eu", role = "aut"),
+    person("Katharine", "Turner", email = "katharine.turner@anu.edu.au", 
+      role = c("aut", "fnd")),
+    person("Vanessa", "Robins", email = "vanessa.robins@anu.edu.au", 
+      role = "aut")
   )
-Author: Yossi Bokor, James Morgan, Vanessa Robins, Katharine Turner
 Maintainer: James Morgan <james.morgan@sydney.edu.au>
+URL: https://github.com/james-e-morgan/xpht
+BugReports: https://github.com/james-e-morgan/xpht/issues
 Description: An implementation of the extended persistent homology
-    transform (XPHT) for shape statistics of two dimensional binary
-    images. This is done by computing the extended persistent homology of
-    the boundary curves of the image in multiple evenly spaced directions
-    similar to Turner et al. (2014) <doi:10.1093/imaiai/iau011>.  
+    transform (XPHT) <doi:10.48550/arXiv.2208.14583> for shape statistics 
+    of two dimensional binary images. This is done by computing the extended 
+    persistent homology of the boundary curves of the image in multiple evenly 
+    spaced directions similar to Turner et al. (2014) 
+    <doi:10.1093/imaiai/iau011>.  
     We offer functionality for plotting extended persistence diagrams and 
     barcodes as well as the Wasserstein \eqn{p} distance matrix.
 Language: en-au

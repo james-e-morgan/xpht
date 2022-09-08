@@ -67,10 +67,10 @@ computeDistanceMatrix <- function(diagrams,
       distance_matrix[j, i] <- d_ij
       
       if (verbose) {
-        print(paste("Computed distance (", i, ",", j, ") and (",
+        cat("Computed distance (", i, ",", j, ") and (",
           j, ",", i, ")",
           sep = ""
-        ))
+        )
       }
     }
   }
