@@ -26,3 +26,9 @@ If you wish to run the development version, install the devtools package
 ``` r
 devtools::install_github("james-e-morgan/xpht")
 ```
+
+## A Note on Reading Images
+
+XPHT requires the input be binary images. For this it is required that
+the pixel values of the input images are either 0 or 1. If any other
+values are present an error will be thrown.
