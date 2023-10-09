@@ -196,6 +196,7 @@ pointDistance <- function(points_1, points_2, q) {
       r_2 <- rep(dist_xy, n_1)
 
       cost_matrix <- rbind(cost_matrix, c(r_1, r_2))
+    }
 
       r_1 <- apply(points_2, 1, function(x) distanceToDiagonal(x, q))
       r_2 <- rep(0, n_1)
@@ -203,7 +204,7 @@ pointDistance <- function(points_1, points_2, q) {
       for (j in 1:n_2) {
         cost_matrix <- rbind(cost_matrix, c(r_1, r_2))
       }
-
+      
       pairing <- RcppHungarian::HungarianSolver(cost_matrix)
       idxs <- pairing[["pairs"]]
 
@@ -213,7 +214,6 @@ pointDistance <- function(points_1, points_2, q) {
       )
 
       return(sum(pair_vals))
-    }
   }
 }
 
