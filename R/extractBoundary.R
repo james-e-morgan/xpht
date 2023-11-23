@@ -37,8 +37,6 @@ library(imager)
 library(pointr)
 library(future.apply)
 
-img <- load.image(file)
-
 prepImage <- function(img,
                       background = 1) {
   
