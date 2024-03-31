@@ -133,8 +133,6 @@ extendedPersistence <- function(bdryCurves,
     x_diagram[[d]] <- neg_diagram
   }
 
-  #class(x_diagram) <- "extendedPHT"
-
   if (saveOutput) {
     saveRDS(x_diagram, file = out_file)
     if (verbose) {
@@ -164,7 +162,7 @@ extendedPersistence <- function(bdryCurves,
 #'  the list is the extended persistence diagrams for the \eqn{i}-th file in
 #'  `inputDir`.
 #' @seealso extendedPersistence()
-#' #' @importFrom utils tail
+#' @importFrom utils tail
 #' @export
 multiExtendedPersistence <- function(inputDir,
                                      nDirections,
@@ -185,7 +183,7 @@ multiExtendedPersistence <- function(inputDir,
       outputDir <- getwd()
       cat("Output directory doesn't exist. Saving to working directory.\n")
     }
-  } else { 
+  } else {
     extended_diagrams <- vector(mode = "list", length = length(files))
   }
 
@@ -196,9 +194,9 @@ multiExtendedPersistence <- function(inputDir,
     }
 
     fName <- tail(strsplit(strsplit(f, ".", fixed = TRUE)[[1]][1],
-      "/",
-      fixed = TRUE
-    )[[1]], n = 1)
+                    "/",
+                    fixed = TRUE
+                  )[[1]], n = 1)
 
     bdryCurves <- readRDS(f)
 
@@ -226,8 +224,8 @@ multiExtendedPersistence <- function(inputDir,
   }
 
   if (saveOutput) {
-     cat("All extended persistence diagrams saved in:\n",
-          outputDir, "\n", sep = "")
+    cat("All extended persistence diagrams saved in:\n",
+        outputDir, "\n", sep = "")
   } else {
     cat("All extended persistence diagrams computed.\n")
     return(extended_diagrams)
@@ -595,7 +593,7 @@ testMinimality <- function(vertices,
   }
 
   if (abs(h_k - h_prev) <= collinearTol &&
-    abs(h_k - h_next) <= collinearTol) {
+        abs(h_k - h_next) <= collinearTol) {
     return(testNormalVector(v_k, v_next, direction))
   } else {
     P <- c(

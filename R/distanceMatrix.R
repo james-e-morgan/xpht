@@ -5,7 +5,7 @@
 #'
 #' Given a collection of objects \eqn{O_1,\dots,O_n} and directions
 #'  \eqn{v_1,\dots,v_K}, compute the distance matrix \eqn{D}$ between all pairs
-#'  of objects \eqn{O_i,O_j} for \eqn{i\neq j}. The objects \eqn{O_i} and 
+#'  of objects \eqn{O_i,O_j} for \eqn{i\neq j}. The objects \eqn{O_i} and
 #'  \eqn{O_j} have extended persistence diagrams \eqn{X_{i1},\dots,X_{iK}} and
 #'  \eqn{X_{j1},\dots,X_{jK}}, respectively. The distance between $O_i$ and
 #'  $O_j$ is the average distance between their diagrams.
@@ -24,7 +24,7 @@
 #' @param verbose `bool` If `TRUE` will print when the distance between each
 #' pair of objects has been computed.
 #' @return A square, symmetric `matrix` where entry \eqn{(i,j)} contains the
-#' \eqn{q}-Wasserstein distance between the XPHTs of objects i and j. 
+#' \eqn{q}-Wasserstein distance between the XPHTs of objects i and j.
 #' @export
 computeDistanceMatrix <- function(diagrams,
                                   nObjects,
@@ -65,39 +65,39 @@ computeDistanceMatrix <- function(diagrams,
 
       distance_matrix[i, j] <- d_ij
       distance_matrix[j, i] <- d_ij
-      
+
       if (verbose) {
         cat("Computed distance (", i, ",", j, ") and (",
-          j, ",", i, ")",
+          j, ",", i, ")\n",
           sep = ""
         )
       }
     }
   }
-  cat("Successfully computed all distances.")
+  cat("Successfully computed all distances.\n")
   return(distance_matrix)
 }
 
 #' Stack Multiple XPHTs into a Single List
-#' 
+#'
 #' Given a directory of XPHTs, load each XPHT and store as an element in a
 #' list.
-#' 
+#'
 #' @param inputDir The directory containing the XPHTs stored as `.RDS` files.
 #' @return A list of XPHTs
 #' @export
 stackDiagrams <- function(inputDir) {
-  files = list.files(inputDir, full.names=TRUE, recursive=FALSE)
-  data = vector(mode = "list")
-  cx = 1
+  files <- list.files(inputDir, full.names = TRUE, recursive = FALSE)
+  data <- vector(mode = "list")
+  cx <- 1
   for (i in seq_along(files)) {
-    dgm = readRDS(files[[i]])
+    dgm <- readRDS(files[[i]])
     for (j in seq_along(dgm)) {
-      data[[cx]] = dgm[[j]]
-      cx = cx + 1
+      data[[cx]] <- dgm[[j]]
+      cx <- cx + 1
     }
   }
-  cat('Successfully loaded XPHTs of', length(files), 'images.\n', sep=" ")
+  cat("Successfully loaded XPHTs of", length(files), "images.\n", sep = " ")
   return(data)
 }
 
@@ -198,22 +198,22 @@ pointDistance <- function(points_1, points_2, q) {
       cost_matrix <- rbind(cost_matrix, c(r_1, r_2))
     }
 
-      r_1 <- apply(points_2, 1, function(x) distanceToDiagonal(x, q))
-      r_2 <- rep(0, n_1)
+    r_1 <- apply(points_2, 1, function(x) distanceToDiagonal(x, q))
+    r_2 <- rep(0, n_1)
 
-      for (j in 1:n_2) {
-        cost_matrix <- rbind(cost_matrix, c(r_1, r_2))
-      }
-      
-      pairing <- RcppHungarian::HungarianSolver(cost_matrix)
-      idxs <- pairing[["pairs"]]
+    for (j in 1:n_2) {
+      cost_matrix <- rbind(cost_matrix, c(r_1, r_2))
+    }
 
-      pair_vals <- apply(
-        idxs, 1,
-        function(x) cost_matrix[x[1], x[2]]
-      )
+    pairing <- RcppHungarian::HungarianSolver(cost_matrix)
+    idxs <- pairing[["pairs"]]
 
-      return(sum(pair_vals))
+    pair_vals <- apply(
+      idxs, 1,
+      function(x) cost_matrix[x[1], x[2]]
+    )
+
+    return(sum(pair_vals))
   }
 }
 
