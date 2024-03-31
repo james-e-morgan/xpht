@@ -1,8 +1,8 @@
 Type: Package
 Package: XPHT
 Title: Shape Statistics with the Extended Persistent Homology Transform
-Version: 1.0.0
-Date: 2022-09-07
+Version: 1.1.0
+Date: 2024-03-31
 Authors@R: c(
     person("James", "Morgan", email = "james.morgan@sydney.edu.au", 
       role = c("aut", "cre")),
@@ -10,6 +10,8 @@ Authors@R: c(
     person("Katharine", "Turner", email = "katharine.turner@anu.edu.au", 
       role = c("aut", "fnd")),
     person("Vanessa", "Robins", email = "vanessa.robins@anu.edu.au", 
+      role = "aut"),
+    person("Thomas", "Burnett", email = "thomas.burnett@anu.edu.au", 
       role = "aut")
   )
 Maintainer: James Morgan <james.morgan@sydney.edu.au>
@@ -32,7 +34,7 @@ Imports:
     RcppHungarian
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown
