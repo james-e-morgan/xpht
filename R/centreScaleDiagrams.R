@@ -17,13 +17,29 @@
 #' @param scaleConstant `numeric` constant to control the scaling of the
 #'  diagram. This is *not* the percentage of the original scale of the image.
 #'  The default value is 1.
+#' @inheritParams extractBoundary
 #' @return A list of extended persistence diagrams centred at the origin and
 #' with birth and death times scaled by an amount proportional to the sum of the
 #' minimum birth times.
 #' @export
 centreScaleDiagrams <- function(diagrams,
                                 scale = TRUE,
-                                scaleConstant = 1) {
+                                scaleConstant = 1,
+                                saveOutput = FALSE,
+                                outputDir = NULL,
+                                fName = NULL,
+                                verbose = TRUE) {
+  if (saveOutput) {
+    if (!dir.exists(outputDir)) {
+      outputDir <- getwd()
+      cat("Output directory doesn't exist. Saving to working directory.\n")
+    }
+    if (is.null(fName)) {
+      fName <- readline(prompt = "Please provide a filename for save: ")
+    }
+    out_file <- paste(outputDir, "/", fName, ".RDS", sep = "")
+  }
+
   n_dirs <- length(diagrams)
   lambda <- findMinBirthTimes(
     n_dirs = n_dirs,
@@ -35,7 +51,7 @@ centreScaleDiagrams <- function(diagrams,
     n_dirs = n_dirs,
     lambda = lambda
   )
-  cat("Diagrams successfully centred.")
+
   if (scale) {
     adjusted_diagrams <- scaleDiagrams(
       diagrams = adjusted_diagrams,
@@ -43,10 +59,104 @@ centreScaleDiagrams <- function(diagrams,
       lambda = lambda,
       scaleConstant = scaleConstant
     )
-    cat("Diagrams successfully scaled.")
   }
 
-  return(adjusted_diagrams)
+  if (saveOutput) {
+    saveRDS(adjusted_diagrams, file = out_file)
+    if (verbose) {
+      cat("Successfully saved ", out_file, "\n", sep = "")
+    }
+  } else {
+    if (verbose) {
+      cat("Diagrams successfully centred.")
+      if (scale) {
+        cat("Diagrams successfully scaled.")
+      }
+    }
+    return(adjusted_diagrams)
+  }
+}
+
+#' Centre and Scale Extended Persistence Diagrams for multiple XPHTs
+#'
+#' Runs [centreScaleDiagrams()] on all .RDS files in a given directory.
+#'
+#' @inheritParams centreScaleDiagrams
+#' @inheritParams multiExtractBoundary
+#' @return If `saveOutput = TRUE`, then the output of [centreScaleDiagrams()]
+#'  for each object will be saved in a separate file. If `saveOutput = FALSE`,
+#'  then multiCentreScaleDiagrams()] returns a list containing the extended
+#'  persistence diagrames centred at the origin and with birth and death times
+#'  scaled by an amount proportional to the sum of the minimum birth times for
+#'  each object in `inputDir`. The \eqn{i}-th entry in the list is the centred
+#'  extended persistence diagrams for the \eqn{i}-th file in `inputDir`.
+#' @seealso centreScaleDiagrams()
+#' #' @importFrom utils tail
+#' @export
+multiCentreScaleDiagrams <- function(
+  inputDir,
+  scale = TRUE,
+  scaleConstant = 1,
+  saveOutput = FALSE,
+  outputDir = NULL,
+  verbose = TRUE
+) {
+  files <- list.files(
+    path = inputDir,
+    pattern = "*.RDS",
+    full.names = TRUE,
+    recursive = FALSE
+  )
+
+  if (saveOutput) {
+    if (!dir.exists(outputDir)) {
+      outputDir <- getwd()
+      cat("Output directory doesn't exist. Saving to working directory.\n")
+    }
+  } else {
+    centred_diagrams <- vector(mode = "list", length = length(files))
+  }
+
+  for (i in seq_along(files)) {
+    f <- files[[i]]
+    if (verbose) {
+      cat("Commencing,", f, "\n", sep = " ")
+    }
+
+    fName <- tail(strsplit(strsplit(f, ".", fixed = TRUE)[[1]][1], "/",
+                    fixed = TRUE
+                  )[[1]], n = 1)
+
+    diagrams <- readRDS(f)
+
+    if (saveOutput) {
+      centreScaleDiagrams(
+        diagrams = diagrams,
+        scale = scale,
+        scaleConstant = scaleConstant,
+        saveOutput = TRUE,
+        outputDir = outputDir,
+        fName = fName,
+        verbose = verbose
+      )
+    } else {
+      centred_diagrams[[i]] <- centreScaleDiagrams(
+        diagrams = diagrams,
+        scale = scale,
+        scaleConstant = scaleConstant,
+        saveOutput = FALSE,
+        verbose = verbose
+      )
+    }
+  }
+
+  if (saveOutput) {
+    cat("All centred extended persistence diagrams saved in:\n",
+        outputDir, "\n", sep = "")
+  } else {
+    cat("All centred extended persistence diagrams computed.\n")
+    return(centred_diagrams)
+  }
 }
 
 findMinBirthTimes <- function(n_dirs, diagrams) {
@@ -99,7 +209,7 @@ findCentre <- function(n_dirs, lambda) {
       sin(2 * pi * r / n_dirs)
     )
   }))
-  K <- sum(directions[,1]^2)
+  K <- sum(directions[, 1]^2)
   directions <- lambda * directions
   cp <- colSums(directions) / K
 
