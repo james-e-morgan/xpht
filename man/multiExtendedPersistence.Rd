@@ -52,5 +52,4 @@ Runs \code{\link[=extendedPersistence]{extendedPersistence()}} on all .RDS files
 }
 \seealso{
 extendedPersistence()
-#' @importFrom utils tail
 }
