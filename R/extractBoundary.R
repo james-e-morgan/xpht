@@ -50,7 +50,7 @@ extractBoundary <- function(img,
     out_file <- paste(outputDir, "/", fName, ".RDS", sep = "")
   }
 
-  img_matrix <- prepImage(img)
+  img_matrix <- prepImage(img, background)
 
   h <- dim(img_matrix)[1]
   w <- dim(img_matrix)[2]
@@ -123,8 +123,7 @@ extractBoundary <- function(img,
   }
 }
 
-prepImage <- function(img,
-                      background = 1) {
+prepImage <- function(img, background) {
 
   if (any(img > 1) || any(img < 0)) {
     stop("Image not binary. Pixel values must be either 0 or 1.")
@@ -139,8 +138,15 @@ prepImage <- function(img,
 
   w <- imager::width(img)
   h <- imager::height(img)
+  
+  plot(img)
+  
+  if (background == 1) {
+    img_matrix <- 1 - matrix(img, nrow = h, ncol = w, byrow = TRUE)
+  } else {
+    img_matrix <- matrix(img, nrow = h, ncol = w, byrow = TRUE)
+  }
 
-  img_matrix <- 1 - matrix(img, nrow = h, ncol = w, byrow = TRUE)
   img_matrix <- apply(img_matrix, 2, rev)
 
 
@@ -153,7 +159,7 @@ prepImage <- function(img,
 
 
 
-getEdge <- function(img_matrix, index, background = 0, verbose) {
+getEdge <- function(img_matrix, index, verbose) {
   width_value <- index[[1]]
   height_value <- index[[2]]
 
@@ -164,12 +170,11 @@ getEdge <- function(img_matrix, index, background = 0, verbose) {
     img_matrix[height_value + 1, width_value + 1]
   )
 
-  edge_mat <- addEdge(block, height_value, width_value, background, verbose)
+  edge_mat <- addEdge(block, height_value, width_value, verbose)
   return(edge_mat)
 }
 
 addEdge <- function(block, i, j,
-                    background = 0,
                     verbose) {
   table <- list(
     c(),                                                            # 0000
