@@ -29,7 +29,7 @@ knitr::opts_chunk$set(
 **XPHT** offers two methods for boundary curve extraction - one for a single image and one for multiple images. The main difference is that extracting the boundary of a single image has an extra step.
 
 ## Extracting Boundary Contours of a Single Binary Image
-The first step in using **XPHT** is extracting the boundary curves from one or more binary images. We provide a method for doing this to a single image along with a method for doing this for all images of a particular file type or file name pattern in a specified directory. When loading a single image we need to load this in through the [Imager package](https://cran.r-project.org/web/packages/imager/index.html). For information about the installation of Imager please refer to [this manual](https://cran.r-project.org/web/packages/imager/vignettes/gettingstarted.html).
+The first step in using **XPHT** is extracting the boundary curves from one or more binary images. We provide a method for doing this to a single image along with a method for doing this for all images of a particular file type or file name pattern in a specified directory. When loading a single image we need to load this in through the [Imager package](https://cran.r-project.org/package=imager). For information about the installation of Imager please refer to its Getting Started vignette.
 
 Let's work through an example of loading a single image and extracting its boundary.
 
@@ -37,19 +37,19 @@ Provided with this package are two data sets of images - one of the letter **A**
 
 ```{r dev='jpeg'}
 library(imager)
-gridA <- system.file('extdata/gridA.png', package='XPHT')
-gridg <- system.file('extdata/gridg.png', package='XPHT')
+gridA <- system.file("extdata/gridA.png", package = "XPHT")
+gridg <- system.file("extdata/gridg.png", package = "XPHT")
 imgA <- load.image(gridA)
 imgg <- load.image(gridg)
-par(mfrow=c(1,2))
-plot(imgA, axes=FALSE)
-plot(imgg, axes=FALSE)
+par(mfrow = c(1, 2))
+plot(imgA, axes = FALSE)
+plot(imgg, axes = FALSE)
 ```
 
 Each letter **A** on the left grid is included as an individual file, as is each **g** on the right grid. The pixel values are either 0 (for black) or 1 (for white) - *this is a requirement for images used with this package* so that we can clearly define if a pixel is black or white. One of the included fonts is *courier-new*. Let's load the image for the letter **A** in and have a look at it:
 
 ```{r}
-fpath <- system.file('extdata/letterA/courier-new.png', package='XPHT')
+fpath <- system.file("extdata/letterA/courier-new.png", package = "XPHT")
 img <- load.image(fpath)
 plot(img)
 ```
@@ -71,37 +71,37 @@ class(boundaryA)
 
 We structure our list so that the first entry tells us the number of anticlockwise curves and the number of clockwise curves. We then store all of the anticlockwise curves followed by all of the clockwise curves as matrices of their $(x,y)$ coordinates. To check this, we can plot each curve and add an arrow to a point near the start or end.
 ```{r}
-par(mfrow=c(1,2))
-plot(boundaryA[[2]], axes=FALSE, type='l')
-arrows(x0=boundaryA[[2]][1,1], y0=boundaryA[[2]][1,2],
-       x1=boundaryA[[2]][50,1], y1=boundaryA[[2]][50,2],
-       col='blue')
-plot(boundaryA[[3]], axes=FALSE, type='l')
-arrows(x0=boundaryA[[3]][1,1], y0=boundaryA[[3]][1,2],
-       x1=boundaryA[[3]][20,1], y1=boundaryA[[3]][20,2],
-       col='blue')
+par(mfrow = c(1, 2))
+plot(boundaryA[[2]], axes = FALSE, type = "l")
+arrows(x0 = boundaryA[[2]][1, 1], y0 = boundaryA[[2]][1, 2],
+       x1 = boundaryA[[2]][50, 1], y1 = boundaryA[[2]][50, 2],
+       col = "blue")
+plot(boundaryA[[3]], axes = FALSE, type = "l")
+arrows(x0 = boundaryA[[3]][1, 1], y0 = boundaryA[[3]][1, 2],
+       x1 = boundaryA[[3]][20, 1], y1 = boundaryA[[3]][20, 2],
+       col = "blue")
 ```
 
 The arrow on each curve is set to point to a point in the first half of the curve. Following the shortest path from the start to the end of the arrow, we can check that each curve is oriented as we expect. 
 
 We can do the exact same thing for the letter **g** in the same font. This time we don't want `extractBoundary` to print information so we set `verbose=FALSE`.
 ```{r}
-fpath <- system.file('extdata/letterg/courier-new.png', package='XPHT')
+fpath <- system.file("extdata/letterg/courier-new.png", package = "XPHT")
 img <- load.image(fpath)
 plot(img)
 ```
 
 ```{r}
-boundaryg <- extractBoundary(img, verbose=FALSE)
-par(mfrow=c(1,2))
-plot(boundaryg[[2]], axes=FALSE, type='l')
-arrows(x0=boundaryg[[2]][1,1], y0=boundaryg[[2]][1,2],
-       x1=boundaryg[[2]][50,1], y1=boundaryg[[2]][50,2],
-       col='blue')
-plot(boundaryg[[3]], axes=FALSE, type='l')
-arrows(x0=boundaryg[[3]][1,1], y0=boundaryg[[3]][1,2],
-       x1=boundaryg[[3]][20,1], y1=boundaryg[[3]][20,2],
-       col='blue')
+boundaryg <- extractBoundary(img, verbose = FALSE)
+par(mfrow = c(1, 2))
+plot(boundaryg[[2]], axes = FALSE, type = "l")
+arrows(x0 = boundaryg[[2]][1, 1], y0 = boundaryg[[2]][1, 2],
+       x1 = boundaryg[[2]][50, 1], y1 = boundaryg[[2]][50, 2],
+       col = "blue")
+plot(boundaryg[[3]], axes = FALSE, type = "l")
+arrows(x0 = boundaryg[[3]][1, 1], y0 = boundaryg[[3]][1, 2],
+       x1 = boundaryg[[3]][20, 1], y1 = boundaryg[[3]][20, 2],
+       col = "blue")
 ```
 
 Once again we can see that the curves are oriented as we expect.
@@ -110,8 +110,8 @@ Once again we can see that the curves are oriented as we expect.
 When extracting the boundary curves of a single image, the user must first load the image into R. For multiple images, all that is needed is a directory containing the images along with the file extension. We're going to extract the boundaries of all 95 letter A images. These are `png` files with this specified. Take note that we specify this as `png` and not `.png`. It may be a good idea to set `verbose=FALSE` for this as we get output for every image processed.
 
 ```{r}
-fpath <- system.file('extdata/letterA', package='XPHT')
-ABoundaries <- multiExtractBoundary(fpath, imgType = 'png', verbose = FALSE)
+fpath <- system.file("extdata/letterA", package = "XPHT")
+ABoundaries <- multiExtractBoundary(fpath, imgType = "png", verbose = FALSE)
 length(ABoundaries[1:10])
 class(ABoundaries)
 ```
@@ -119,16 +119,16 @@ class(ABoundaries)
 Once again we store the output as a list. Each entry of this list corresponds to one image and stores the boundary curve information exactly as it did for a single image. We can plot one of these to see this.
 
 ```{r}
-testBoundary = ABoundaries[[10]]
-par(mfrow=c(1,2))
-plot(testBoundary[[2]], axes=FALSE, type='l')
-arrows(x0=testBoundary[[2]][1,1], y0=testBoundary[[2]][1,2],
-       x1=testBoundary[[2]][50,1], y1=testBoundary[[2]][50,2],
-       col='blue')
-plot(testBoundary[[3]], axes=FALSE, type='l')
-arrows(x0=testBoundary[[3]][1,1], y0=testBoundary[[3]][1,2],
-       x1=testBoundary[[3]][20,1], y1=testBoundary[[3]][20,2],
-       col='blue')
+testBoundary <- ABoundaries[[10]]
+par(mfrow = c(1, 2))
+plot(testBoundary[[2]], axes = FALSE, type = "l")
+arrows(x0 = testBoundary[[2]][1, 1], y0 = testBoundary[[2]][1, 2],
+       x1 = testBoundary[[2]][50, 1], y1 = testBoundary[[2]][50, 2],
+       col = "blue")
+plot(testBoundary[[3]], axes = FALSE, type = "l")
+arrows(x0 = testBoundary[[3]][1, 1], y0 = testBoundary[[3]][1, 2],
+       x1 = testBoundary[[3]][20, 1], y1 = testBoundary[[3]][20, 2],
+       col = "blue")
 ```
 
 ## Additional Options for Boundary Extraction
@@ -144,7 +144,7 @@ We similarly offer a function to compute the XPHT of a single image and a functi
 To compute the XPHT we need to compute the extended persistent homology in multiple directions. For symmetry reasons, we require an even number of directions and at least 2. If $2n$ directions are specified then these are computed so that the $2n$-th direction is along the positive $x$-axis. For our example, we will use 8 directions. In practice, you would typically want 32 or more.
 
 ```{r}
-xphtA <- extendedPersistence(boundaryA, 'A-courier-new', 8)
+xphtA <- extendedPersistence(boundaryA, "A-courier-new", 8)
 ```
 
 The extended persistence diagrams are stored in a list of length $2n$, where $2n$ is the number of directions used. The $k$-th entry holds the diagram for the image in the $k$-th direction.
@@ -174,7 +174,7 @@ More details on each of these can be found in [Turner, Robins, & Morgan](https:/
 It is entirely possible that some of these may be empty - and that's fine. While we're here, let's compute the XPHT for the letter **g** we loaded in.
 
 ```{r}
-xphtg <- extendedPersistence(boundaryg, 'g-courier-new', 8)
+xphtg <- extendedPersistence(boundaryg, "g-courier-new", 8)
 ```
 
 In the case we have a directory of of R data files containing the boundary curves of some images, we can use the `multiExtendedPersistence` function to handle these.
@@ -183,11 +183,13 @@ In the case we have a directory of of R data files containing the boundary curve
 Computing the XPHT is great, but we really would like to see some of these diagrams. Thankfully we have a generic plot function to do just this. To plot an extended persistence diagram, we pass one of the diagrams in the list produced by `extendedPersistence` to the plot function. As these plots can vary wildly, you must specify a legend externally. To help with this, the function `getDefaultColours()` returns the default colours used to plot the extended persistence diagram.
 
 ```{r}
-par(mfrow=c(1,2))
+par(mfrow = c(1, 2))
 plot(xphtA[[1]], main = "Extended Persistence of A\nin Direction pi/4")
-legend("bottomright", legend=c("Ord0", "Rel1", "Ess0", "Ess1"), col = getDefaultColours(), pch = 15:18)
+legend("bottomright", legend = c("Ord0", "Rel1", "Ess0", "Ess1"),
+       col = getDefaultColours(), pch = 15:18)
 plot(xphtg[[1]], main = "Extended Persistence of g\nin Direction pi/4")
-legend("topright", legend=c("Ord0", "Rel1", "Ess0", "Ess1"), col = getDefaultColours(), pch = 15:18)
+legend("topright", legend = c("Ord0", "Rel1", "Ess0", "Ess1"),
+       col = getDefaultColours(), pch = 15:18)
 ```
 
 Here, the `Ord0` and `Ess0` classes are plotted above the line $y=x$, whereas the `Rel1` and `Ess1` classes are plotted below this line.
@@ -195,11 +197,17 @@ Here, the `Ord0` and `Ess0` classes are plotted above the line $y=x$, whereas th
 Another useful plot we can use to visualise the extended persistent homology is the barcode. Rather than plotting points as $(birth,death)$ points in the plane, we plot horizontal line segments for each point which go from the birth time to the death time of that class. This is done by specifying `barcode=TRUE` in the plot function. In order to plot a legend in this case it is typically easier to use the `inset` argument in order to display the legend outside of the plot. This means we may need to adjust the margins of the plot regions.
 
 ```{r}
-par(mfrow=c(2,1), mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
-plot(xphtA[[1]], barcode = TRUE, main = "Extended Persistence Barcode of A\nin Direction pi/4")
-legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
-plot(xphtg[[1]], barcode = TRUE, main = "Extended Persistence Barcode of g\nin Direction pi/4")
-legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
+par(mfrow = c(2, 1), mar = c(5.1, 4.1, 4.1, 8.1), xpd = TRUE)
+plot(xphtA[[1]], barcode = TRUE,
+     main = "Extended Persistence Barcode of A\nin Direction pi/4")
+legend("topright", inset = c(-0.3, 0),
+       legend = c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1, 1, 1, 1),
+       col = getDefaultColours(), lwd = 2)
+plot(xphtg[[1]], barcode = TRUE,
+     main = "Extended Persistence Barcode of g\nin Direction pi/4")
+legend("topright", inset = c(-0.3, 0),
+       legend = c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1, 1, 1, 1),
+       col = getDefaultColours(), lwd = 2)
 ```
 
 Both of these formats convey the same information. It's just a question of which one is easier for your purposes.
@@ -215,11 +223,17 @@ To counteract this we can centre and scale the images. Doing this to a whole ima
 ```{r}
 centredA <- centreScaleDiagrams(xphtA, scale = FALSE)
 centredg <- centreScaleDiagrams(xphtg, scale = FALSE)
-par(mfrow=c(2,1), mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
-plot(centredA[[1]], barcode = TRUE, main = "Centred Extended Persistence Barcode of A\nin Direction pi/4")
-legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
-plot(centredg[[1]], barcode = TRUE, main = "Centred Extended Persistence Barcode of g\nin Direction pi/4")
-legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
+par(mfrow = c(2, 1), mar = c(5.1, 4.1, 4.1, 8.1), xpd = TRUE)
+plot(centredA[[1]], barcode = TRUE,
+     main = "Centred Extended Persistence Barcode of A\nin Direction pi/4")
+legend("topright", inset = c(-0.3, 0),
+       legend = c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1, 1, 1, 1),
+       col = getDefaultColours(), lwd = 2)
+plot(centredg[[1]], barcode = TRUE,
+     main = "Centred Extended Persistence Barcode of g\nin Direction pi/4")
+legend("topright", inset = c(-0.3, 0),
+       legend = c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1, 1, 1, 1),
+       col = getDefaultColours(), lwd = 2)
 ```
 
 Observe that the lifetimes are now centred around 0 rather than approximately 90.
@@ -229,11 +243,17 @@ For the example data set we have set the font size to be consistent amongst the 
 ```{r}
 scaledA <- centreScaleDiagrams(xphtA, scale = TRUE, scaleConstant = 5)
 scaledg <- centreScaleDiagrams(xphtg, scale = TRUE, scaleConstant = 5)
-par(mfrow=c(2,1), mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
-plot(scaledA[[1]], barcode = TRUE, main = "Centred and Scaled Extended Persistence Barcode of A\nin Direction pi/4")
-legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
-plot(scaledg[[1]], barcode = TRUE, main = "Centred and Scaled Extended Persistence Barcode of g\nin Direction pi/4")
-legend("topright", inset=c(-0.3,0), legend=c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1,1,1,1), col = getDefaultColours(), lwd = 2)
+par(mfrow = c(2, 1), mar = c(5.1, 4.1, 4.1, 8.1), xpd = TRUE)
+plot(scaledA[[1]], barcode = TRUE, main = "Centred and Scaled Extended
+     Persistence Barcode of A\nin Direction pi/4")
+legend("topright", inset = c(-0.3, 0),
+       legend = c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1, 1, 1, 1),
+       col = getDefaultColours(), lwd = 2)
+plot(scaledg[[1]], barcode = TRUE, main = "Centred and Scaled Extended
+     Persistence Barcode of g\nin Direction pi/4")
+legend("topright", inset = c(-0.3, 0),
+       legend = c("Ord0", "Rel1", "Ess0", "Ess1"), lty = c(1, 1, 1, 1),
+       col = getDefaultColours(), lwd = 2)
 ```
 
 Details on the centring and scaling algorithms can be found in [Turner, Mukherjee, & Boyer (2014)](https://doi.org/10.1093/imaiai/iau011).
@@ -261,8 +281,8 @@ With the (light) details out the way we can get to doing some computing. It is i
 Our first job is to load these in and store all diagrams in a single list. This can be achieved 
 
 ```{r}
-fpathA <- system.file("extdata/xpht32A/", package='XPHT')
-fpathg <- system.file("extdata/xpht32g/", package='XPHT')
+fpathA <- system.file("extdata/xpht32A/", package = "XPHT")
+fpathg <- system.file("extdata/xpht32g/", package = "XPHT")
 diagramsA <- stackDiagrams(fpathA)
 diagramsg <- stackDiagrams(fpathg)
 ```
@@ -270,43 +290,47 @@ diagramsg <- stackDiagrams(fpathg)
 For demonstration purposes we will compute both the aligned and unaligned distances for each set of objects. To do this we also need to specify the number of images (which is conveniently output from the `stackDiagrams` function). By default, we assume the objects are unaligned.
 
 ```{r}
-distMatrixA.aligned <- computeDistanceMatrix(diagramsA, 13, q = 2, aligned = TRUE, verbose = FALSE)
-distMatrixg.unaligned <- computeDistanceMatrix(diagramsg, 13, q = 2, verbose = FALSE)
+distMatrixA.aligned <- computeDistanceMatrix(diagramsA, 13, q = 2,
+                                             aligned = TRUE, verbose = FALSE)
+distMatrixg.unaligned <- computeDistanceMatrix(diagramsg, 13, q = 2,
+                                               verbose = FALSE)
 ```
 
 We can quickly check what one of these matrices looks like:
 ```{r}
-distMatrixA.aligned[1:6,1:6]
+distMatrixA.aligned[1:6, 1:6]
 ```
 
 From this small portion we can see what we expect - a symmetric matrix with 0s along the diagonal.
 
 ## Using Distance Matrices for Multidimensional Scaling
-We close off this vignette with a toy example of using multidimensional scaling on the XPHT of the letter As. We have provided a precomputed distance matrix of the centred (but not scaled) XPHTs for all 95 letter **g** images. For lowercase g's a key feature is whether it has one or two closed loops. This is referred to as having one or two storeys. We provide a text file labelling each letter **g** image appropriately.
+We close off this vignette with a toy example of using multidimensional scaling on the XPHT of the letter **g**s. We have provided a precomputed distance matrix of the centred (but not scaled) XPHTs for all 95 letter **g** images. For lowercase g's a key feature is whether it has one or two closed loops. This is referred to as having one or two storeys. We provide a text file labelling each letter **g** image appropriately.
 
 Before we compute this, let's define a convenient plotting function.
 
 ```{r}
 plot.mds <- function(x, labels, main = NULL,
-                     colour = c("#E41A1C","#377EB8","#4DAF4A"), legend.pos = "topleft",
-                     cex = 1.3, pch = 19, cex.main = 1.5, cex.legend = 0.9, ...) {
-  points.mds = x$points
-  
-  limxy = range(points.mds)
-  limxy = limxy + ((limxy[2]-limxy[1])*0.15)*c(-0.5,0.5)
-  
+                     colour = c("#E41A1C", "#377EB8", "#4DAF4A"),
+                     legend.pos = "topleft", cex = 1.3, pch = 19,
+                     cex.main = 1.5, cex.legend = 0.9, ...) {
+  points.mds <- x$points
+
+  limxy <- range(points.mds)
+  limxy <- limxy + ((limxy[2] - limxy[1]) * 0.15) * c(-0.5, 0.5)
+
   par(mar = c(0.2, 0.8, 1.1, 0.8), ps = 10)
   plot(limxy, limxy, type = "n", axes = FALSE, frame = FALSE)
   rect(limxy[1], limxy[1], limxy[2], limxy[2], border = "#999999", lwd = 0.3)
-  
-  points(points.mds[,1], points.mds[,2], col = colour[as.integer(labels)], cex=cex, pch=pch)
+
+  points(points.mds[, 1], points.mds[, 2], col = colour[as.integer(labels)],
+         cex = cex, pch = pch)
   mtext(side = 3, main, cex = cex.main)
-  
-  labels.u = unique(labels)
-  legend.text = as.character(labels.u)
-  
+
+  labels.u <- unique(labels)
+  legend.text <- as.character(labels.u)
+
   legend(legend.pos, legend = legend.text, inset = 0.03,
-         col=colour[as.integer(labels.u)], bty = "n", pch=pch,
+         col = colour[as.integer(labels.u)], bty = "n", pch = pch,
          cex = cex.legend)
 }
 ```
@@ -314,13 +338,14 @@ plot.mds <- function(x, labels, main = NULL,
 We are now ready to compute the MDS using out distance matrix. This is done using the inbuilt `cmdscale` function.
 
 ```{r}
-fpath.matrix <- system.file('extdata/distMatg.RDS', package='XPHT')
-fpath.labels <- system.file('extdata/storey.txt', package='XPHT')
+fpath.matrix <- system.file("extdata/distMatg.RDS", package = "XPHT")
+fpath.labels <- system.file("extdata/storey.txt", package = "XPHT")
 distMat <- readRDS(fpath.matrix)
-labels <- factor(scan(fpath.labels, character(), quote=""))
+labels <- factor(scan(fpath.labels, character(), quote = ""))
 
 fonts.mds <- cmdscale(distMat, eig = TRUE, k = 2)
-plot.mds(fonts.mds, labels=labels, main = "MDS of Letter g Images using 2-Wasserstein Distance")
+plot.mds(fonts.mds, labels = labels,
+         main = "MDS of Letter g Images using 2-Wasserstein Distance")
 ```
 
 For the most part our implementation of the XPHT has resulted in a successful clustering of the lowercase letter **g** depending on whether it has one or two storeys. One of the fonts used has uppercase letters when using lowercase and there was also one image which was fairly noisy. As an exercise to the user, we leave the problem of determining which image this was!

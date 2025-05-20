@@ -29,15 +29,15 @@
 #' @inheritParams graphics::plot
 #' @export
 plot.extendedPHT <- function(x,
-                            barcode = FALSE,
-                            col = c( "#000000",
+                             barcode = FALSE,
+                             col = c("#000000",
                                      "#e69f00",
                                      "#009e73",
                                      "#d55e00"),
-                            pch = 15:18,
-                            lwd = 2,
-                            cex = 1,
-                            lab.line = 2.2, ...) {
+                             pch = 15:18,
+                             lwd = 2,
+                             cex = 1,
+                             lab.line = 2.2, ...) {
   # Add checks for diagram list
   # Add checks for diagram Names
   X <- vector()
@@ -148,10 +148,10 @@ plot.extendedPHT <- function(x,
 }
 
 #' Get the Default Colours used in Plotting Extended Persistence Diagrams
-#' 
+#'
 #' @return Vector containing the default colours used for plotting extended
 #' persistence diagrams in the order (Ord0, Rel1, Ess0, Ess1).
 #' @export
 getDefaultColours <- function() {
-  return(c( "#000000", "#e69f00", "#009e73", "#d55e00"))
+  return(c("#000000", "#e69f00", "#009e73", "#d55e00"))
 }

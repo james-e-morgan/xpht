@@ -4,7 +4,15 @@
 \alias{centreScaleDiagrams}
 \title{Centre and Scale Extended Persistence Diagrams}
 \usage{
-centreScaleDiagrams(diagrams, scale = TRUE, scaleConstant = 1)
+centreScaleDiagrams(
+  diagrams,
+  scale = TRUE,
+  scaleConstant = 1,
+  saveOutput = FALSE,
+  outputDir = NULL,
+  fName = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{diagrams}{A list of extended persistence diagrams on a single image
@@ -16,6 +24,20 @@ default value is \code{TRUE}.}
 \item{scaleConstant}{\code{numeric} constant to control the scaling of the
 diagram. This is \emph{not} the percentage of the original scale of the image.
 The default value is 1.}
+
+\item{saveOutput}{If TRUE, will save output as a \code{.RDS} file to
+directory specified by outputDir. The default values is \code{FALSE}.}
+
+\item{outputDir}{The directory to save the output. If saveOutput is TRUE
+and no directory is specified, saves to working directory. The default
+is \code{NULL}.}
+
+\item{fName}{The name of the output file saved. If saveOutput is TRUE and
+no filename specified, prompts user for filename. The default value is
+\code{NULL}.}
+
+\item{verbose}{If TRUE, prints indicators of progress throughout. The default
+value is \code{TRUE}.}
 }
 \value{
 A list of extended persistence diagrams centred at the origin and
